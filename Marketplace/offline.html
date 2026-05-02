@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline | BUBU Gebeya</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .offline-card {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            max-width: 400px;
+            width: 90%;
+        }
+        .offline-logo {
+            height: 80px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        p {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        .btn-retry {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        .btn-retry:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-card">
+        <img src="BUBU LOGO.png" alt="BUBU" class="offline-logo">
+        <p>It looks like you've lost your connection. Check your internet and try again to continue browsing.</p>
+        <button class="btn-retry" onclick="window.location.reload()">Try Again</button>
+    </div>
+</body>
+</html>

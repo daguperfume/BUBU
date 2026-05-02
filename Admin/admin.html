@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUBU GEBEYA — Admin Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../Marketplace/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <!-- Dashboard Layout -->
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+                Admin
+            </div>
+            <nav>
+                <div class="admin-nav-item active" data-target="overview">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Overview
+                </div>
+                <div class="admin-nav-item" data-target="users">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Users
+                </div>
+                <div class="admin-nav-item" data-target="listings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    Listings
+                </div>
+                <div class="admin-nav-item" data-target="reports">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Reports
+                </div>
+                <div class="admin-nav-item" data-target="verifications">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Verifications
+                </div>
+                <div class="admin-nav-item" data-target="featuring">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                        </polygon>
+                    </svg>
+                    Featuring
+                </div>
+                <div class="admin-nav-item" data-target="broadcast">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l1.17-1.17a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z">
+                        </path>
+                    </svg>
+                    Broadcast
+                </div>
+                <div class="admin-nav-item" data-target="audit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Activity Logs
+                </div>
+            </nav>
+            <div style="margin-top:auto">
+                <div class="admin-nav-item" onclick="window.location.href='../Marketplace/index.html'"
+                    style="color: #ef4444">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Exit Admin
+                </div>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <!-- OVERVIEW -->
+            <section id="section-overview" class="admin-section active">
+                <header class="admin-header">
+                    <h1>Dashboard</h1>
+                    <p>Real-time statistics from the cloud.</p>
+                </header>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-lbl">Total Listings</div>
+                        <div class="stat-val" id="stat-ads">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-lbl">Active Users</div>
+                        <div class="stat-val" id="stat-users">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-lbl">Pending Reports</div>
+                        <div class="stat-val" id="stat-reports">0</div>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h2>Growth Statistics</h2>
+                        <span style="font-size: 12px; color: #64748b;">Past Week</span>
+                    </div>
+                    <div style="padding: 24px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div
+                            style="background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                            <div style="color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                New Users (Past Week)</div>
+                            <div style="font-size: 24px; font-weight: 800; color: #6366f1; margin-top: 4px;"
+                                id="growth-users">0</div>
+                        </div>
+                        <div
+                            style="background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                            <div style="color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                New Listings (Past Week)</div>
+                            <div style="font-size: 24px; font-weight: 800; color: #10b981; margin-top: 4px;"
+                                id="growth-ads">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h2>Recent Activity</h2>
+                    </div>
+                    <div id="recentActivity">
+                        <p style="padding: 32px; text-align: center; color: #94a3b8">Syncing data...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- USERS -->
+            <section id="section-users" class="admin-section">
+                <header class="admin-header">
+                    <h1>User Management</h1>
+                </header>
+                <div class="admin-card">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--admin-border);">
+                        <input type="search" id="userSearch" autocomplete="new-password"
+                            placeholder="Search users by ID, Name or Email..."
+                            style="width: 100%; padding: 12px; border: 1px solid var(--admin-border); border-radius: 8px; font-family: inherit;"
+                            oninput="filterUsers()">
+                    </div>
+                    <!-- USER SUB-TABS -->
+                    <div
+                        style="padding: 0 16px; border-bottom: 1px solid var(--admin-border); display: flex; gap: 4px; background: #fcfcfd;">
+                        <button class="sub-tab active" onclick="switchUserSubTab('all', this)">All Users</button>
+                        <button class="sub-tab" onclick="switchUserSubTab('active', this)">Active</button>
+                        <button class="sub-tab" onclick="switchUserSubTab('banned', this)">Banned</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Ban Reason</th>
+                                <th>Phone</th>
+                                <th style="text-align:center">Posts</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- USER PROFILING -->
+            <section id="section-profiling" class="admin-section">
+                <header class="admin-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="btn-action" style="background: white; border: 1px solid var(--admin-border);"
+                            onclick="switchTab('users')">Back to Users</button>
+                        <h1 style="margin: 0;">User Profiling & Insights</h1>
+                    </div>
+                </header>
+
+                <div id="profilingResult">
+                    <!-- Profiles will be rendered here -->
+                </div>
+            </section>
+
+            <section id="section-listings" class="admin-section">
+                <header class="admin-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <h1>Listing Management</h1>
+                        <div id="listingFilterInfo"
+                            style="display:none; align-items:center; gap:12px; background:#e0e7ff; padding:8px 16px; border-radius:12px;">
+                            <span style="font-size:13px; color:#4338ca; font-weight:700;">Filtered by User</span>
+                            <button class="btn-action" style="background:#4338ca; color:white; font-size:11px;"
+                                onclick="clearListingFilter()">Clear & Show All</button>
+                        </div>
+                    </div>
+                </header>
+                <div class="admin-card">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--admin-border);">
+                        <input type="text" id="adSearch" autocomplete="off" name="admin_ad_search"
+                            placeholder="Search ads by Title, ID, Seller or Category..."
+                            style="width: 100%; padding: 12px; border: 1px solid var(--admin-border); border-radius: 8px; font-family: inherit;"
+                            oninput="filterAds()">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ad Details</th>
+                                <th>Seller</th>
+                                <th>Price</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listingTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- REPORTS -->
+            <section id="section-reports" class="admin-section">
+                <header class="admin-header">
+                    <h1>Safety Reports</h1>
+                </header>
+                <div class="admin-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Listing</th>
+                                <th>Reported By</th>
+                                <th>Reason</th>
+                                <th>Details</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- VERIFICATIONS -->
+            <section id="section-verifications" class="admin-section">
+                <header class="admin-header">
+                    <h1>Identity Verifications</h1>
+                </header>
+                <div class="verif-tabs" style="margin-bottom: 20px;">
+                    <button class="verif-tab active" onclick="switchVerifTab('pending', this)">Pending</button>
+                    <button class="verif-tab" onclick="switchVerifTab('verified', this)">Approved</button>
+                    <button class="verif-tab" onclick="switchVerifTab('rejected', this)">Rejected</button>
+                    <button class="verif-tab" onclick="switchVerifTab('canceled', this)">Canceled</button>
+                </div>
+                <div class="admin-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>ID Photo</th>
+                                <th>Selfie</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="verificationTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- FEATURING (BOOST REQUESTS) -->
+            <section id="section-featuring" class="admin-section">
+                <header class="admin-header">
+                    <h1>Featuring & Boost Requests</h1>
+                </header>
+
+                <!-- MANUAL SLOT CONTROL -->
+                <div class="admin-card" style="margin-bottom: 24px; background: #fff7ed; border: 1px dashed #fdba74;">
+                    <div class="card-header" style="border-bottom: 1px solid #fed7aa;">
+                        <h2 style="color: #9a3412;">Manual Slot Control</h2>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p style="font-size: 12px; color: #c2410c; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Force-pin listings to homepage slider</p>
+                        <div style="position: relative;">
+                            <input type="text" id="manualFeatSearch" placeholder="Search listing by Title or ID to feature..." 
+                                style="width: 100%; padding: 14px 16px; border: 2px solid #ffedd5; border-radius: 12px; outline: none; font-family: inherit; font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);"
+                                oninput="handleManualFeatSearch(this.value)">
+                            <div id="manualFeatResults" class="search-results-pop hidden">
+                                <!-- Results will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 0 16px; border-bottom: 1px solid var(--admin-border); display: flex; gap: 4px; background: #fcfcfd; margin-bottom: 20px;">
+                    <button class="sub-tab active" onclick="switchFeatTab('pending', this)">Pending Boosts</button>
+                    <button class="sub-tab" onclick="switchFeatTab('approved', this)">Currently Featured</button>
+                </div>
+                <div class="admin-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Listing</th>
+                                <th>Seller</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="featuringTable"></tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- BROADCAST -->
+            <section id="section-broadcast" class="admin-section">
+                <header class="admin-header">
+                    <h1>Global Broadcaster</h1>
+                    <p>Send messages or enable maintenance mode for all users.</p>
+                </header>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <!-- LEFT: System Control -->
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h2>System Control</h2>
+                        </div>
+                        <div style="padding: 24px;">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                                <div>
+                                    <div style="font-weight: 700; color: #1e293b;">Maintenance Mode</div>
+                                    <div style="font-size: 12px; color: #64748b;">Block all user access</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="maintenanceToggle" onchange="toggleMaintenance(this.checked)">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+
+                            <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">System Message</label>
+                            <textarea id="broadcastMsg" rows="3" placeholder="Enter message..."
+                                style="width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 8px; outline: none; font-family: inherit; font-size: 14px; resize: none;"></textarea>
+
+                            <button onclick="setSystemMessage()" class="btn-action" style="width: 100%; margin-top: 16px; padding: 14px; background: #6366f1; color: white; border-radius: 12px; font-weight: 700;">Update Message</button>
+                            <button onclick="clearSystemMessage()" class="btn-action" style="width: 100%; margin-top: 12px; padding: 12px; background: #f1f5f9; color: #64748b; border-radius: 12px; font-weight: 700;">Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Current Status -->
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h2>Current Status</h2>
+                        </div>
+                        <div id="broadcastStatus" style="padding: 24px; font-weight: 600; color: #475569;">
+                            Loading status...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AUDIT LOGS -->
+            <section id="section-audit" class="admin-section">
+                <header class="admin-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%">
+                        <div>
+                            <h1>Activity Logs</h1>
+                            <p>History of administrative actions.</p>
+                        </div>
+                        <button id="btnDeleteLogs" class="btn-action" style="background:#ef4444; color:white; display:none" onclick="deleteSelectedLogs()">Delete Selected</button>
+                    </div>
+                </header>
+
+                <div class="admin-card">
+                    <!-- TABS & FILTERS -->
+                    <div style="padding: 16px; border-bottom: 1px solid var(--admin-border); display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; gap:8px">
+                            <button class="sub-tab active">All Activity</button>
+                        </div>
+
+                        <!-- Time Filter -->
+                        <div style="position:relative; display:inline-block">
+                            <button class="btn-action" style="background:white; border:1.5px solid #e2e8f0; display:flex; align-items:center; gap:8px" onclick="toggleTimeDropdown()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <span id="timeFilterLabel">Time Range</span>
+                            </button>
+                            <div id="timeDropdown" class="time-dropdown hidden">
+                                <div class="time-opt" onclick="setTimeFilter('today')">Today</div>
+                                <div class="time-opt" onclick="setTimeFilter('yesterday')">Yesterday</div>
+                                <div class="time-opt" onclick="setTimeFilter('week')">Last Week</div>
+                                <div class="time-opt" onclick="setTimeFilter('month')">Last Month</div>
+                                <div style="border-top:1px solid #f1f5f9; padding-top:8px; margin-top:8px">
+                                    <label style="font-size:10px; font-weight:700; color:#94a3b8; display:block; margin-bottom:4px">CUSTOM RANGE</label>
+                                    <input type="date" id="dateFrom" style="width:100%; margin-bottom:8px; padding:4px">
+                                    <input type="date" id="dateTo" style="width:100%; margin-bottom:8px; padding:4px">
+                                    <button class="btn-action" style="width:100%; font-size:11px; background:var(--primary); color:white" onclick="setTimeFilter('custom')">Apply Range</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:40px; text-align:center">
+                                    <input type="checkbox" onchange="toggleAllLogs(this.checked)">
+                                </th>
+                                <th>Time</th>
+                                <th>Account</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTable"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- VIEW AD MODAL -->
+    <div id="viewAdModal" class="login-overlay" style="display:none; backdrop-filter: blur(8px);">
+        <div class="admin-modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-weight: 800; font-size: 20px;">Product Preview</h2>
+                <button onclick="closeViewModal()"
+                    style="background: #f1f5f9; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">←
+                    Back</button>
+            </div>
+            <div id="adPreviewContent">
+                <!-- Content generated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK EDIT MODAL -->
+    <div id="editModal" class="login-overlay" style="display:none; backdrop-filter: blur(8px);">
+        <div class="login-card" style="max-width: 500px; text-align: left;">
+            <h2 style="font-weight: 800; font-size: 20px; margin-bottom: 20px;">Quick Edit Ad</h2>
+
+            <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Ad
+                Title</label>
+            <input type="text" id="editAdTitle" placeholder="Title..." style="margin-top: 8px; margin-bottom: 16px;">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Price
+                        (ETB)</label>
+                    <input type="number" id="editAdPrice" placeholder="Price..." style="margin-top: 8px;">
+                </div>
+                <div>
+                    <label
+                        style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Category</label>
+                    <select id="editAdCategory"
+                        style="width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 8px; outline: none;">
+                        <option value="phones">Phones</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="vehicles">Vehicles</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label
+                    style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Condition</label>
+                <select id="editAdCondition"
+                    style="width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 8px; outline: none;">
+                    <option value="new">Brand New / New</option>
+                    <option value="used">Used / Second Hand</option>
+                </select>
+            </div>
+
+            <label
+                style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Description</label>
+            <textarea id="editAdDesc" rows="4"
+                style="width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 8px; margin-bottom: 16px; outline: none; font-family: inherit; font-size: 14px; resize: none;"></textarea>
+
+            <label
+                style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Specifications</label>
+            <div id="dynamicSpecsContainer" style="margin-top: 8px; margin-bottom: 16px; display: grid; gap: 12px;">
+                <!-- Inputs generated by JS -->
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button onclick="saveAdminEdit()"
+                    style="flex: 2; padding: 14px; background: var(--admin-accent); color: white; border-radius: 12px; font-weight: 700; cursor: pointer;">Save
+                    Changes</button>
+                <button onclick="closeAdminModal()"
+                    style="flex: 1; padding: 14px; background: #f1f5f9; color: #475569; border-radius: 12px; font-weight: 700; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAN MODAL -->
+    <div id="banModal" class="login-overlay" style="display:none; backdrop-filter: blur(8px); z-index: 3000;">
+        <div class="login-card" style="max-width: 400px; text-align: left;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                <div
+                    style="width:40px; height:40px; background:#fee2e2; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#ef4444;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                </div>
+                <h2 style="font-weight: 800; font-size: 18px; margin: 0;">Restrict Account</h2>
+            </div>
+
+            <p style="font-size:13px; color:#64748b; margin-bottom:20px; line-height:1.5;">You are about to ban this
+                user. This will prevent them from posting new ads or interacting with the platform.</p>
+
+            <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Quick
+                Reason</label>
+            <select id="banQuickReason" onchange="handleBanReasonSelect(this.value)"
+                style="width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 8px; margin-bottom: 16px; outline: none; font-family: inherit;">
+                <option value="Scamming Activity">Scamming Activity</option>
+                <option value="Inappropriate Content">Inappropriate Content</option>
+                <option value="Fake or Misleading Product Info">Fake or Misleading Product Info</option>
+                <option value="Multiple Accounts Policy Violation">Multiple Accounts Policy Violation</option>
+                <option value="Other">Type below :</option>
+            </select>
+
+            <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Details /
+                Custom Reason</label>
+            <textarea id="banCustomReason" rows="3" placeholder="Provide more context..."
+                style="width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 8px; margin-bottom: 24px; outline: none; font-family: inherit; font-size: 13px; resize: none;"></textarea>
+
+            <div style="display: flex; gap: 12px;">
+                <button onclick="confirmToggleBan()" id="banConfirmBtn"
+                    style="flex: 2; padding: 14px; background: #ef4444; color: white; border-radius: 12px; font-weight: 700; cursor: pointer; border:none;">Confirm
+                    Ban</button>
+                <button onclick="closeBanModal()"
+                    style="flex: 1; padding: 14px; background: #f1f5f9; color: #475569; border-radius: 12px; font-weight: 700; cursor: pointer; border:none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../Marketplace/supabase.js"></script>
+    <!-- IMAGE VIEWER MODAL -->
+    <div id="imageViewerModal" class="login-overlay" style="display:none; z-index: 2000;">
+        <div style="position:relative; max-width: 90vw; max-height: 90vh;">
+            <button onclick="closeImageViewer()"
+                style="position:absolute; top:-40px; right:0; background:white; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-weight:bold;">✕</button>
+            <img id="viewerImg" src=""
+                style="max-width:100%; max-height:90vh; border-radius:8px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+        </div>
+    </div>
+
+    <script src="admin-script.js"></script>
+</body>
+
+</html>
