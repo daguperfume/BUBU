@@ -3031,73 +3031,109 @@ footer {
 
   /* ── TOP NAV ────────────────────────────────────────────── */
   .topnav {
-    height: auto !important;
-    padding: 10px 14px !important;
-    flex-wrap: wrap;
-    gap: 8px;
+    height: 64px !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
   }
-
+  
   .topnav-left {
     width: auto !important;
-    flex: 1 !important;
-    justify-content: flex-start !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
   }
-
-  .topnav-logo span {
-    font-size: 17px !important;
-    letter-spacing: -0.5px !important;
+  
+  /* Back button icon only */
+  .btn-back-nav {
+    padding: 6px !important;
+    margin: 0 !important;
+    font-size: 0 !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
-
+  .btn-back-nav::before {
+    content: '←';
+    font-size: 18px !important;
+  }
+  
+  .topnav-logo img {
+    height: 36px !important;
+    width: auto !important;
+  }
+  
   .topnav-search {
-    width: 100% !important;
+    flex: 1 !important;
+    width: auto !important;
     max-width: none !important;
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 2px 0 10px !important;
+    border-radius: 12px !important;
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
     pointer-events: all !important;
-    height: 44px !important;
-    margin: 4px 0 2px 0 !important;
-    order: 10 !important; /* Forces it to the bottom row */
+    order: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
   }
-
-  .topnav-search input { 
-    font-size: 14px !important; 
-    min-width: 0 !important; /* Allows flex-grow to work correctly */
+  
+  .topnav-search input {
+    padding: 0 8px !important;
+    font-size: 13px !important;
+    min-width: 0 !important;
+    flex: 1 !important;
   }
-
+  
   .btn-nav-search {
-    flex-shrink: 0 !important; /* Prevents the button from being squashed or moved */
+    padding: 0 10px !important;
+    height: 34px !important;
+    width: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
   }
-
-  .topnav-actions { 
-    gap: 10px !important; 
+  
+  .topnav-actions {
     width: auto !important;
     flex: 0 0 auto !important;
+    gap: 6px !important;
     justify-content: flex-end !important;
+    display: flex !important;
+    align-items: center !important;
   }
-
+  
   .btn-post-ad {
-    padding: 8px 14px !important;
-    font-size: 12px !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0 !important;
+    border-radius: 50% !important;
   }
-
+  .btn-post-ad span { display: none !important; }
+  
   .btn-icon, .avatar-btn {
-    width: 34px !important;
-    height: 34px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
-
+  
   .safety-bubble { display: none !important; }
-
-  .btn-back-nav {
-    padding: 8px 14px !important;
-    font-size: 12px !important;
-    margin-bottom: 12px !important;
-  }
-
-  .topnav-logo img {
-    height: 44px !important;
-    width: auto !important;
-  }
 
   /* ── HERO ───────────────────────────────────────────────── */
   .hero {
