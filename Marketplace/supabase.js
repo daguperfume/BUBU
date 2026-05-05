@@ -4,6 +4,7 @@
 const supabaseUrl = 'https://vkkktccqcphvppeopvmu.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZra2t0Y2NxY3BodnBwZW9wdm11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDAxOTcsImV4cCI6MjA5MjAxNjE5N30.3BZtTZ8t4w9n3IKggKYT7SD4tIjcrlmIML_a62ojzAo';
 const sb = supabase.createClient(supabaseUrl, supabaseKey);
+const _sbDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 // --- UPLOAD PHOTOS ---------------------------------------
 async function uploadPhotosToStorage(photos) {
@@ -15,7 +16,7 @@ async function uploadPhotosToStorage(photos) {
     const ext = file.name.split('.').pop();
     const fileName = `item_${timestamp}_${i}.${ext}`;
 
-    console.log(`📤 Uploading photo ${i+1}/${photos.length}: ${fileName}...`);
+    if (_sbDev) console.log(`📤 Uploading photo ${i+1}/${photos.length}: ${fileName}...`);
 
     const { data, error } = await sb.storage
       .from('market-gallery')
@@ -25,7 +26,7 @@ async function uploadPhotosToStorage(photos) {
       });
 
     if (error) {
-       console.error("❌ STORAGE ERROR:", error.message);
+       if (_sbDev) console.error('❌ STORAGE ERROR:', error.message);
        throw error;
     }
 
@@ -33,7 +34,7 @@ async function uploadPhotosToStorage(photos) {
       .from('market-gallery')
       .getPublicUrl(fileName);
 
-    console.log("✅ Photo ready at:", publicUrl);
+    if (_sbDev) console.log('✅ Photo ready at:', publicUrl);
     urls.push(publicUrl);
   }
   return urls;
@@ -41,18 +42,18 @@ async function uploadPhotosToStorage(photos) {
 
 // --- SAVE AD ---------------------------------------------
 async function saveAdToSupabase(adData) {
-  console.log("💾 Attempting to save ad data to 'ads' table...", adData);
+  if (_sbDev) console.log("💾 Attempting to save ad data to 'ads' table...");
   const { data, error } = await sb
     .from('ads')
     .upsert([adData], { onConflict: 'id' })
     .select();
 
   if (error) {
-    console.error("❌ DATABASE ERROR:", error.message);
+    if (_sbDev) console.error('❌ DATABASE ERROR:', error.message);
     throw error;
   }
   
-  console.log("🎉 Successfully saved ad row!");
+  if (_sbDev) console.log('🎉 Successfully saved ad row!');
   return data[0];
 }
 

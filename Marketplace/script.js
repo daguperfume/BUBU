@@ -14,6 +14,12 @@ function escapeHTML(str) {
     .replace(/'/g, '&#39;');
 }
 
+// Production log guard — silences logs on live site, keeps them on localhost
+const _isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+function log(...args) { if (_isDev) console.log(...args); }
+function logErr(...args) { if (_isDev) console.error(...args); }
+function logWarn(...args) { if (_isDev) console.warn(...args); }
+
 /* ============================================================
    DATA STORE & CONFIG
 ============================================================ */
@@ -1834,7 +1840,8 @@ function updateProfileUI(user) {
   const tgValue = user.telegram || '';
   if (tgValue) {
     const cleanTg = tgValue.startsWith('@') ? tgValue.substring(1) : tgValue;
-    tgDisplay.innerHTML = `<a href="https://t.me/${cleanTg}" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:none;">${tgValue}</a>`;
+    // H-1 Fix: Sanitize Telegram handle to prevent XSS + add rel noopener (I-1)
+    tgDisplay.innerHTML = `<a href="https://t.me/${encodeURIComponent(cleanTg)}" target="_blank" rel="noopener noreferrer" style="color:var(--primary); font-weight:600; text-decoration:none;">${escapeHTML(tgValue)}</a>`;
   } else {
     tgDisplay.textContent = 'No Telegram set';
   }
@@ -2440,7 +2447,10 @@ function showToast(msg, type = 'info') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${msg}</span>`;
+  // H-2 Fix: Use textContent to prevent XSS in toast messages
+  const span = document.createElement('span');
+  span.textContent = msg;
+  toast.appendChild(span);
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.animation = 'toastOut .3s ease forwards';
