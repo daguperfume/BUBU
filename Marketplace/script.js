@@ -263,8 +263,24 @@ function startAutoSlide() {
 }
 
 /* ============================================================
-   NAVIGATION
+   NAVIGATION & MENU
 ============================================================ */
+function toggleSideMenu() {
+  const menu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('sideMenuOverlay');
+  if (!menu || !overlay) return;
+  
+  menu.classList.toggle('active');
+  overlay.classList.toggle('active');
+  
+  // Prevent scrolling when menu is open
+  if (menu.classList.contains('active')) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+}
+
 function navigate(page, data) {
   if (page === 'favorites') {
     if (!state.currentUser) {
@@ -3115,8 +3131,10 @@ function closeBroadcastModal() {
   const modal = document.getElementById('broadcastModal');
   if (modal) modal.style.display = 'none';
 }
-
 function handleSearchVisibility() {
+  // Mobile: Search is always visible via CSS !important, so we skip logic here.
+  if (window.innerWidth <= 768) return;
+
   const headerSearch = document.getElementById('headerSearchContainer');
   if (!headerSearch) return;
 
@@ -3124,8 +3142,8 @@ function handleSearchVisibility() {
     const heroSearch = document.getElementById('heroSearch');
     if (heroSearch) {
       const heroRect = heroSearch.getBoundingClientRect();
-      // Assume nav height is around 80px. If bottom is < 90, it's covered.
-      if (heroRect.bottom < 90) {
+      // On desktop/tablet, hide header search until hero search is scrolled past
+      if (heroRect.bottom < 80) {
         headerSearch.classList.add('visible');
       } else {
         headerSearch.classList.remove('visible');
@@ -3134,10 +3152,10 @@ function handleSearchVisibility() {
       headerSearch.classList.add('visible');
     }
   } else {
-    // Always visible on other pages
     headerSearch.classList.add('visible');
   }
 }
+
 
 /* ============================================================
    INIT
@@ -3159,6 +3177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', handleSearchVisibility);
   handleSearchVisibility();
+
 
   // Deep-link: ?listing=ID → open that product directly
   const urlParams = new URLSearchParams(window.location.search);
@@ -3233,25 +3252,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function startSafetyWarnings() {
-  const warnings = [
-    "Don't pay before receiving product!",
-    "Meet in a safe public place.",
-    "Inspect the item thoroughly.",
-    "Report suspicious listings.",
-    "Pay only after verification."
-  ];
-  const safetyText = document.getElementById('safetyText');
-  if (!safetyText) return;
-
-  let index = 0;
-  setInterval(() => {
-    safetyText.style.opacity = '0';
-    setTimeout(() => {
-      index = (index + 1) % warnings.length;
-      safetyText.textContent = warnings[index];
-      safetyText.style.opacity = '1';
-    }, 300);
-  }, 5000);
-}
 

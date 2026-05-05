@@ -111,6 +111,10 @@ ul {
   display: none !important;
 }
 
+.btn-menu {
+  display: none;
+}
+
 .flex {
   display: flex;
 }
@@ -324,13 +328,6 @@ ul {
   border-radius: var(--radius-full);
   padding: 2px 4px 2px 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  pointer-events: none;
-}
-
-.topnav-search.visible {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -3022,6 +3019,42 @@ footer {
    Covers: nav, hero, categories, cards, detail, profile,
            post-ad form, modals, footer — every detail.
 ============================================================ */
+/* ============================================================
+   SECURITY TICKER
+============================================================ */
+.security-ticker {
+  background: linear-gradient(135deg, var(--primary), var(--tertiary));
+  color: #fff;
+  padding: 8px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  z-index: 1000;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.ticker-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker-slide 40s linear infinite;
+}
+
+.ticker-content span {
+  display: inline-block;
+  padding-right: 100px;
+}
+
+@keyframes ticker-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 @media (max-width: 768px) {
 
   /* ── GLOBAL ─────────────────────────────────────────────── */
@@ -3031,41 +3064,92 @@ footer {
 
   /* ── TOP NAV ────────────────────────────────────────────── */
   .topnav {
-    height: 68px !important;
-    padding: 0 14px !important;
+    height: 72px !important;
+    padding: 0 12px !important;
     display: flex !important;
+    flex-wrap: nowrap !important; /* Force everything on one line */
     align-items: center !important;
-    justify-content: space-between !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
   }
   
   .topnav-left {
     width: auto !important;
     flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
   }
   
-  .btn-back-nav { display: none !important; } /* Removed per request */
+  /* Hamburger Button */
+  .btn-menu {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .btn-menu:active { background: rgba(0,0,0,0.05); }
+
+  .btn-back-nav { display: none !important; }
   
   .topnav-logo img {
-    height: 52px !important; /* Made logo bigger */
+    height: 52px !important; /* Slightly bigger while still fitting the single row */
     width: auto !important;
   }
   
-  .topnav-search { display: none !important; } /* Removed search bar per request */
+  .topnav-search { 
+    display: flex !important; 
+    flex: 1 !important; /* Take remaining space */
+    order: 0 !important;
+    height: 40px !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    pointer-events: all !important;
+  }
+
+  .topnav-search input {
+    font-size: 13px !important;
+    padding: 0 8px !important;
+  }
+
+  .btn-nav-search {
+    height: 34px !important;
+    width: 34px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+  }
   
   .topnav-actions {
     width: auto !important;
     flex: 0 0 auto !important;
-    gap: 12px !important;
+    gap: 8px !important;
+    display: flex !important;
+    align-items: center !important;
   }
+
+  /* Hide individual buttons - moved to Side Menu */
+  .nav-icon-btn, #authSection { display: none !important; }
   
   .btn-post-ad {
-    width: 40px !important;
-    height: 40px !important;
+    width: 38px !important;
+    height: 38px !important;
     padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 26px !important; /* Big + button */
+    font-size: 24px !important;
     font-weight: 400 !important;
     border-radius: 50% !important;
     background: var(--primary) !important;
@@ -3073,16 +3157,98 @@ footer {
   }
   .btn-post-ad span { display: none !important; }
   
-  .btn-icon, .avatar-btn {
-    width: 40px !important;
-    height: 40px !important;
-  }
-  
   .safety-bubble { display: none !important; }
+
+  /* ── SIDE MENU DRAWER ────────────────────────────────────── */
+  .side-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .side-menu-overlay.active { opacity: 1; visibility: visible; }
+
+  .side-menu {
+    position: fixed;
+    top: 0;
+    right: -280px;
+    left: auto;
+    width: 280px;
+    height: 100%;
+    background: white;
+    z-index: 2001;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .side-menu.active { right: 0; }
+
+  .side-menu-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .side-menu-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .side-menu-body {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .side-menu-section {
+    margin-bottom: 24px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+  }
+  .side-menu-section:last-child { border: none; }
+
+  .side-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .side-menu-item:hover { background: #f8fafc; }
+  .side-menu-item:active { background: #f1f5f9; }
+
+  .side-menu-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+  }
+
+  .side-menu-footer {
+    padding: 20px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
 
   /* ── HERO ───────────────────────────────────────────────── */
   .hero {
-    padding: 24px 14px !important;
+    padding: 0 14px 24px 14px !important;
   }
 
   .hero h1 {
