@@ -7,6 +7,7 @@ const adminState = {
     auditLogs: [],
     currentFeatTab: 'pending',
     currentUserSubTab: 'all',
+    currentListingTab: 'all',
     pendingBanUser: null,
     currentAuditTab: 'all',
     auditTimeFilter: 'all',
@@ -137,24 +138,54 @@ async function refreshData() {
 }
 
 function updateStats() {
+    // Row 1
     document.getElementById('stat-ads').textContent = adminState.ads.length;
     document.getElementById('stat-users').textContent = adminState.users.length;
     document.getElementById('stat-reports').textContent = adminState.reports.length;
+    document.getElementById('stat-featured').textContent = adminState.ads.filter(a => a.featured).length;
+
+    // Row 2
+    document.getElementById('stat-verifications').textContent = adminState.users.filter(u => u.verification_status === 'pending').length;
+    document.getElementById('stat-boosts').textContent = adminState.ads.filter(a => a.boost_status === 'pending').length;
+    document.getElementById('stat-banned').textContent = adminState.users.filter(u => u.is_banned).length;
 }
 
 function updateGrowthStats() {
-    // Data Aggregation (Past 7 Days)
-    let usersCount = 0;
-    let adsCount = 0;
+    const now = new Date();
     
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    // Timeframes
+    const startOfWeek = new Date();
+    startOfWeek.setDate(now.getDate() - 7);
+    
+    const startOfMonth = new Date();
+    startOfMonth.setMonth(now.getMonth() - 1);
+    
+    const startOfYear = new Date();
+    startOfYear.setFullYear(now.getFullYear() - 1);
 
-    usersCount = adminState.users.filter(u => new Date(u.created_at) >= sevenDaysAgo).length;
-    adsCount = adminState.ads.filter(a => new Date(a.created_at) >= sevenDaysAgo).length;
+    // Filter Logic
+    const filterByDate = (list, date) => list.filter(i => new Date(i.created_at) >= date).length;
 
-    document.getElementById('growth-users').textContent = usersCount;
-    document.getElementById('growth-ads').textContent = adsCount;
+    // Week
+    document.getElementById('growth-users-week').textContent = filterByDate(adminState.users, startOfWeek);
+    document.getElementById('growth-ads-week').textContent = filterByDate(adminState.ads, startOfWeek);
+
+    // Month
+    document.getElementById('growth-users-month').textContent = filterByDate(adminState.users, startOfMonth);
+    document.getElementById('growth-ads-month').textContent = filterByDate(adminState.ads, startOfMonth);
+
+    // Year
+    document.getElementById('growth-users-year').textContent = filterByDate(adminState.users, startOfYear);
+    document.getElementById('growth-ads-year').textContent = filterByDate(adminState.ads, startOfYear);
+
+    // Also update badges on top cards (using week)
+    const newAds = filterByDate(adminState.ads, startOfWeek);
+    const newUsers = filterByDate(adminState.users, startOfWeek);
+    
+    const badgeAds = document.getElementById('badge-ads');
+    const badgeUsers = document.getElementById('badge-users');
+    if (badgeAds) badgeAds.textContent = `+${newAds} this week`;
+    if (badgeUsers) badgeUsers.textContent = `+${newUsers} this week`;
 }
 
 async function logAudit(action, details, targetId = null) {
@@ -246,6 +277,110 @@ async function deleteSelectedLogs() {
         console.error("Delete Exception:", e);
         alert("System Error: " + e.message);
     }
+}
+
+function switchListingTab(tab, btn) {
+    adminState.currentListingTab = tab;
+    // Update active UI
+    const container = btn.parentElement;
+    container.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    renderCategoryFilters();
+    renderListings();
+}
+
+function renderCategoryFilters() {
+    const container = document.getElementById('categoryFilterContainer');
+    if (!container) return;
+
+    if (adminState.currentListingTab === 'all' || adminState.currentListingTab === 'other') {
+        container.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+
+    const config = SPEC_FIELDS_CONFIG[adminState.currentListingTab];
+    if (!config) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'flex';
+    container.innerHTML = `
+        <span style="font-size: 13px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-right: 8px;">Filters:</span>
+        ${config.map(field => {
+            if (field.type === 'select') {
+                return `
+                    <select class="admin-dynamic-filter" data-field="${field.name}" onchange="filterAds()" style="padding: 10px 16px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569; background: white; cursor: pointer; min-width: 140px;">
+                        <option value="">${field.name}</option>
+                        ${field.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+                    </select>
+                `;
+            } else {
+                return `
+                    <input type="text" class="admin-dynamic-filter" data-field="${field.name}" placeholder="${field.name}..." oninput="filterAds()" style="padding: 10px 16px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569; background: white; width: 140px;">
+                `;
+            }
+        }).join('')}
+        <button onclick="clearDynamicFilters()" style="font-size: 13px; font-weight: 800; color: #6366f1; border: none; background: none; cursor: pointer; text-decoration: underline; margin-left: 8px;">Reset Filters</button>
+    `;
+}
+
+function clearDynamicFilters() {
+    document.querySelectorAll('.admin-dynamic-filter').forEach(el => el.value = '');
+    filterAds();
+}
+
+function renderListings(filteredList = null) {
+    const table = document.getElementById('listingTable');
+    if (!table) return;
+
+    let ads = filteredList || adminState.ads;
+
+    // Apply category tab filtering if not already filtered (e.g. by search or user)
+    if (!filteredList && adminState.currentListingTab !== 'all') {
+        ads = ads.filter(ad => ad.category === adminState.currentListingTab);
+    }
+
+    if (ads.length === 0) {
+        table.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#94a3b8">No listings found in this category.</td></tr>';
+        return;
+    }
+
+    table.innerHTML = ads.map(ad => `
+        <tr>
+            <td>
+                <div style="display:flex; align-items:center; gap:12px">
+                    <img src="${Array.isArray(ad.photos) ? ad.photos[0] : ad.photos}" 
+                         style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;"
+                         onclick="openImageViewer(this.src)">
+                    <div>
+                        <div style="font-weight:700">${ad.title.slice(0,30)}</div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <span style="font-size:11px; color:#64748b">ID: ${ad.id}</span>
+                            <span style="font-size:11px; color:#6366f1; font-weight:700;">👁 ${ad.views || 0} views</span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div style="position:relative; cursor:pointer;" onclick="viewUserProfile('${ad.user_id}')">
+                    <span style="border-bottom: 1px dashed #6366f1; color: #6366f1; font-weight: 700;">${ad.seller_name || 'Seller'}</span>
+                </div>
+            </td>
+            <td style="font-weight:700; color:#1e293b">${Number(ad.price).toLocaleString()}</td>
+            <td>${ad.category}</td>
+            <td style="display:flex; gap:8px">
+                <button class="btn-action" style="background:#f1f5f9; color:#475569; border:none" onclick="viewAdDetail('${ad.id}')">View</button>
+                <button class="btn-action" style="background:#fef3c7; color:#92400e; border:none" onclick="openAdminEdit('${ad.id}')">Edit</button>
+                <button class="btn-action btn-feature" onclick="toggleFeature('${ad.id}', ${ad.featured})">
+                    ${ad.featured ? 'Unfeature' : 'Feature'}
+                </button>
+                <button class="btn-action btn-delete" onclick="deleteAd('${ad.id}')">Delete</button>
+            </td>
+        </tr>
+    `).join('');
 }
 
 function renderAuditLogs() {
@@ -522,58 +657,40 @@ function clearListingFilter() {
 
 function filterAds() {
     const query = document.getElementById('adSearch').value.toLowerCase();
-    const filtered = adminState.ads.filter(ad => 
-        String(ad.id).toLowerCase().includes(query) || 
-        (ad.title && ad.title.toLowerCase().includes(query)) || 
-        (ad.seller_name && ad.seller_name.toLowerCase().includes(query)) ||
-        (ad.category && ad.category.toLowerCase().includes(query))
-    );
+    const currentTab = adminState.currentListingTab;
+    
+    // Collect dynamic filters
+    const dynamicFilters = {};
+    document.querySelectorAll('.admin-dynamic-filter').forEach(el => {
+        if (el.value) {
+            dynamicFilters[el.getAttribute('data-field')] = el.value.toLowerCase();
+        }
+    });
+
+    const filtered = adminState.ads.filter(ad => {
+        // 1. Category Tab Filter
+        const matchesTab = currentTab === 'all' || ad.category === currentTab;
+        if (!matchesTab) return false;
+
+        // 2. Text Search Filter
+        const matchesQuery = String(ad.id).toLowerCase().includes(query) || 
+                            (ad.title && ad.title.toLowerCase().includes(query)) || 
+                            (ad.seller_name && ad.seller_name.toLowerCase().includes(query));
+        if (!matchesQuery) return false;
+
+        // 3. Dynamic Spec Filters
+        for (const [field, val] of Object.entries(dynamicFilters)) {
+            const specs = ad.specs || {};
+            const adVal = String(specs[field] || '').toLowerCase();
+            if (!adVal.includes(val)) return false;
+        }
+
+        return true;
+    });
+    
     renderListings(filtered);
 }
 
-function renderListings(specificAds = null) {
-    const list = specificAds || adminState.ads;
-    const table = document.getElementById('listingTable');
-    table.innerHTML = list.map(ad => `
-        <tr>
-            <td>
-                <div style="display:flex; align-items:center; gap:12px">
-                    <img src="${Array.isArray(ad.photos) ? ad.photos[0] : ad.photos}" 
-                         style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;"
-                         onclick="openImageViewer(this.src)">
-                    <div>
-                        <div style="font-weight:700">${ad.title.slice(0,30)}</div>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <span style="font-size:11px; color:#64748b">ID: ${ad.id}</span>
-                            <span style="font-size:11px; color:#6366f1; font-weight:700;">👁 ${ad.views || 0} views</span>
-                        </div>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="seller-dropdown" style="position:relative; cursor:pointer;" onclick="viewUserProfile('${ad.user_id}')">
-                    <span style="border-bottom: 1px dashed #6366f1; color: #6366f1; font-weight: 700;">${ad.seller_name || 'Seller'}</span>
-                </div>
-            </td>
-            <td style="font-weight:700; color:#1e293b">${Number(ad.price).toLocaleString()}</td>
-            <td>${ad.category}</td>
-            <td style="display:flex; gap:8px">
-                <button class="btn-action" style="background:#f1f5f9; color:#475569; border:none" onclick="viewAdDetail('${ad.id}')">View</button>
-                <button class="btn-action" style="background:#fef3c7; color:#92400e; border:none" onclick="openAdminEdit('${ad.id}')">Edit</button>
-                <button class="btn-action btn-feature" onclick="toggleFeature('${ad.id}', ${ad.featured})">
-                    ${ad.featured ? 'Unfeature' : 'Feature'}
-                </button>
-                <button class="btn-action btn-delete" onclick="deleteAd('${ad.id}')">Delete</button>
-            </td>
-        </tr>
-    `).join('');
-
-    // Add simple CSS for seller dropdown hover
-    document.querySelectorAll('.seller-dropdown').forEach(el => {
-        el.onmouseenter = () => el.querySelector('.seller-info-pop').style.display = 'block';
-        el.onmouseleave = () => el.querySelector('.seller-info-pop').style.display = 'none';
-    });
-}
 
 function renderReports() {
     const table = document.getElementById('reportTable');

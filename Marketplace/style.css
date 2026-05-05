@@ -203,6 +203,11 @@ ul {
   color: var(--text-muted);
 }
 
+/* SIDE MENU DRAWER (HIDDEN BY DEFAULT) */
+.side-menu-overlay, .side-menu {
+  display: none;
+}
+
 .btn-back-nav {
   display: inline-flex;
   align-items: center;
@@ -2799,8 +2804,10 @@ footer {
   }
 
   .hero-search button {
-    width: 100%;
-    padding: 14px;
+    width: 100% !important;
+    padding: 14px !important;
+    height: auto !important;
+    display: block !important;
   }
 
   .topnav-search {
@@ -2925,15 +2932,15 @@ footer {
 }
 
 .slider-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1.5px solid var(--border);
+  background: white !important;
+  border: 1.5px solid var(--border) !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--text-secondary) !important;
   cursor: pointer;
   pointer-events: auto;
   transition: all 0.2s;
@@ -2941,9 +2948,10 @@ footer {
 }
 
 .slider-btn:hover {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
+  background: var(--primary) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+  transform: scale(1.1);
 }
 
 .dot {
@@ -3112,9 +3120,16 @@ footer {
     border-radius: 12px !important;
     background: #f1f5f9 !important;
     border: 1px solid #e2e8f0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) !important;
+    pointer-events: none !important;
+  }
+
+  .topnav-search.visible {
     opacity: 1 !important;
     visibility: visible !important;
-    transform: none !important;
+    transform: translateY(0) !important;
     pointer-events: all !important;
   }
 
@@ -3161,6 +3176,7 @@ footer {
 
   /* ── SIDE MENU DRAWER ────────────────────────────────────── */
   .side-menu-overlay {
+    display: block !important;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
@@ -3173,6 +3189,7 @@ footer {
   .side-menu-overlay.active { opacity: 1; visibility: visible; }
 
   .side-menu {
+    display: flex !important;
     position: fixed;
     top: 0;
     right: -280px;
@@ -3183,7 +3200,6 @@ footer {
     z-index: 2001;
     box-shadow: -4px 0 20px rgba(0,0,0,0.1);
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
     flex-direction: column;
   }
   .side-menu.active { right: 0; }
@@ -3261,7 +3277,28 @@ footer {
     margin-bottom: 12px !important;
   }
 
-  .hero-search { display: none !important; } /* Removed hero search per request */
+  .hero-search { 
+    display: flex !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-top: 20px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: white !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+  }
+
+  .hero-search input {
+    height: 100% !important;
+    font-size: 14px !important;
+    padding: 0 16px !important;
+  }
+
+  .hero-search button {
+    display: none !important; /* On mobile, we usually don't need a text button in the input */
+  }
 
   /* ── FOOTER ─────────────────────────────────────────────── */
   footer { 
@@ -3671,6 +3708,68 @@ footer {
   .footer-social { justify-content: center !important; }
 
   footer { padding: 32px 14px !important; }
+}
+
+/* ============================================================
+   SEARCH SUGGESTIONS
+============================================================ */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border: 1px solid var(--border);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.side-menu, .side-menu-overlay {
+  display: none;
+}
+
+.search-suggestion-item {
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.search-suggestion-item:hover {
+  background: #f8fafc;
+}
+
+.search-suggestion-item i {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ── DESKTOP SPECIFIC ────────────────────────────────────── */
+@media (min-width: 769px) {
+  .hero-search {
+    display: none !important;
+  }
+  .btn-menu {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-search {
+    display: flex !important;
+  }
 }
 
 /* ── EXTRA SMALL (≤ 380px) ──────────────────────────────── */

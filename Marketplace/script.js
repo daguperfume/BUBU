@@ -54,10 +54,9 @@ const CATEGORY_SPEC_FIELDS = {
   phones: {
     "": [
       { name: 'Brand', type: 'select', options: ['Apple', 'Samsung', 'Huawei', 'Xiaomi', 'Infinix', 'Tecno', 'Oppo', 'Nokia', 'Realme', 'Google', 'OnePlus', 'Motorola', 'Other'], required: true },
-      { name: 'Condition', type: 'select', options: ['Brand New', 'Foreign Used', 'Local Used'], required: true },
-      { name: 'RAM', type: 'select', options: ['2GB', '3GB', '4GB', '6GB', '8GB', '12GB', '16GB', '24GB+'], required: true },
+      { name: 'RAM', type: 'select', options: ['2GB', '3GB', '4GB', '6GB', '8GB', '12GB', '16GB', '24GB+'], required: false },
       { name: 'Storage Capacity', type: 'select', options: ['32GB', '64GB', '128GB', '256GB', '512GB', '1TB'], required: true },
-      { name: 'Color', type: 'text', placeholder: 'e.g. Titanium, Midnight, Black', required: true },
+      { name: 'Color', type: 'text', placeholder: 'e.g. Black, white, blue, red, etc', required: false },
       { name: 'Battery Health (%)', type: 'number', placeholder: 'e.g. 98', required: false },
       { name: 'Screen Size', type: 'text', placeholder: 'e.g. 6.7"', required: false },
       { name: 'Exchange Possible', type: 'select', options: ['Yes', 'No'], required: false }
@@ -69,12 +68,12 @@ const CATEGORY_SPEC_FIELDS = {
       { name: 'Brand', type: 'text', placeholder: 'e.g. Apple, Dell, HP', required: true },
       { name: 'Condition', type: 'select', options: ['New', 'Used', 'Refurbished'], required: true },
       { name: 'Processor', type: 'text', placeholder: 'e.g. Intel Core i7, M2, Ryzen 5', required: true },
-      { name: 'RAM', type: 'select', options: ['4GB', '8GB', '12GB', '16GB', '32GB', '64GB+'], required: true },
+      { name: 'RAM', type: 'select', options: ['4GB', '8GB', '12GB', '16GB', '32GB', '64GB+'], required: false },
       { name: 'Storage Capacity', type: 'text', placeholder: 'e.g. 256GB, 1TB', required: true },
       { name: 'Storage Type', type: 'select', options: ['SSD', 'HDD', 'SSHD'], required: true },
       { name: 'Display Size', type: 'text', placeholder: 'e.g. 13-inch, 15.6-inch', required: true },
       { name: 'Operating System', type: 'select', options: ['Windows 11', 'Windows 10', 'macOS', 'Linux', 'ChromeOS'], required: true },
-      { name: 'Color', type: 'text', placeholder: 'e.g. Silver, Space Gray, Black', required: true },
+      { name: 'Color', type: 'text', placeholder: 'e.g. Silver, Space Gray, Black', required: false },
       { name: 'Graphics Card', type: 'text', required: false },
       { name: 'Exchange Possible', type: 'select', options: ['Yes', 'No'], required: false }
     ],
@@ -104,7 +103,7 @@ const CATEGORY_SPEC_FIELDS = {
       { name: 'Type', type: 'text', placeholder: 'e.g. T-shirt, Jacket', required: true },
       { name: 'Gender', type: 'select', options: ['Men', 'Women', 'Unisex'], required: true },
       { name: 'Size', type: 'select', options: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'], required: true },
-      { name: 'Color', type: 'text', placeholder: 'e.g. Black, White', required: true },
+      { name: 'Color', type: 'text', placeholder: 'e.g. Black, White', required: false },
       { name: 'Condition', type: 'select', options: ['New with tags', 'New without tags', 'Gently used'], required: true }
     ],
     shoes: [
@@ -112,7 +111,7 @@ const CATEGORY_SPEC_FIELDS = {
       { name: 'Type', type: 'text', placeholder: 'e.g. Sneakers, Boots, Loafers', required: true },
       { name: 'Gender', type: 'select', options: ['Men', 'Women', 'Unisex'], required: true },
       { name: 'Size', type: 'text', placeholder: 'e.g. 40, 42, 45', required: true },
-      { name: 'Color', type: 'text', placeholder: 'e.g. Triple Black, White/Red', required: true },
+      { name: 'Color', type: 'text', placeholder: 'e.g. Triple Black, White/Red', required: false },
       { name: 'Condition', type: 'select', options: ['New in Box', 'New without Box', 'Gently Used'], required: true }
     ],
     bags: [
@@ -132,7 +131,7 @@ const CATEGORY_SPEC_FIELDS = {
     cars: [
       { name: 'Make/Brand', type: 'text', placeholder: 'e.g. Toyota, Hyundai', required: true },
       { name: 'Year of Manufacture', type: 'number', placeholder: 'e.g. 2022', required: true },
-      { name: 'Color', type: 'text', placeholder: 'e.g. Silver, Black', required: true },
+      { name: 'Color', type: 'text', placeholder: 'e.g. Silver, Black', required: false },
       { name: 'Condition', type: 'select', options: ['Brand New', 'Used Ethiopia', 'Used Foreign'], required: true },
       { name: 'Transmission', type: 'select', options: ['Automatic', 'Manual'], required: true },
       { name: 'Body', type: 'select', options: ['Sedan', 'SUV', 'Hatchback', 'Pickup', 'Minivan', 'Truck', 'Coupe'], required: false },
@@ -269,10 +268,10 @@ function toggleSideMenu() {
   const menu = document.getElementById('sideMenu');
   const overlay = document.getElementById('sideMenuOverlay');
   if (!menu || !overlay) return;
-  
+
   menu.classList.toggle('active');
   overlay.classList.toggle('active');
-  
+
   // Prevent scrolling when menu is open
   if (menu.classList.contains('active')) {
     document.body.style.overflow = 'hidden';
@@ -713,11 +712,11 @@ function applyFilters() {
   const elecSubs = ELECTRONICS_SUBS.map(s => s.id);
 
   if (state.searchQuery) {
-    const q = state.searchQuery.toLowerCase();
+    const q = normalizeSearchText(state.searchQuery);
     results = results.filter(l =>
-      (l.title || '').toLowerCase().includes(q) ||
-      (l.desc || '').toLowerCase().includes(q) ||
-      (l.brand || '').toLowerCase().includes(q)
+      normalizeSearchText(l.title).includes(q) ||
+      normalizeSearchText(l.description).includes(q) ||
+      normalizeSearchText(l.seller).includes(q)
     );
   }
 
@@ -923,15 +922,15 @@ function renderDetailPage(listing) {
   const infoList = document.getElementById('detailInfoList');
   if (infoList) {
     let specs = {};
-    try { 
-      specs = typeof listing.specs === 'string' ? JSON.parse(listing.specs) : (listing.specs || {}); 
-    } catch (e) { 
+    try {
+      specs = typeof listing.specs === 'string' ? JSON.parse(listing.specs) : (listing.specs || {});
+    } catch (e) {
       console.warn("Failed to parse specs:", e);
       specs = {};
     }
 
     const brand = specs.Brand || specs.brand || specs.Make || specs.make || specs['Make/Brand'] || 'Generic';
-    
+
     // Define the specific order of fields
     const orderedRows = [
       { label: 'Brand', value: brand, strong: true },
@@ -948,18 +947,18 @@ function renderDetailPage(listing) {
 
     // Priority-based Sort
     const priority = ['storage', 'capacity', 'internal storage', 'ram', 'memory', 'color', 'processor'];
-    
+
     otherSpecs.sort(([a], [b]) => {
       const keyA = a.toLowerCase().trim();
       const keyB = b.toLowerCase().trim();
-      
+
       // Find index in priority list (or Infinity if not found)
       const idxA = priority.findIndex(p => keyA.includes(p));
       const idxB = priority.findIndex(p => keyB.includes(p));
-      
+
       const pA = idxA === -1 ? 99 : idxA;
       const pB = idxB === -1 ? 99 : idxB;
-      
+
       return pA - pB;
     });
 
@@ -980,10 +979,10 @@ function renderDetailPage(listing) {
       </div>
     `).join('');
   }
-  
+
   const ePrice = document.getElementById('detailPriceText');
   if (ePrice) ePrice.textContent = Number(listing.price).toLocaleString();
-  
+
   const eDesc = document.getElementById('detailDescText');
   if (eDesc) {
     const lines = (listing.description || '').split('\n').filter(l => l.trim().length > 0);
@@ -1159,7 +1158,7 @@ function updateSellerCardDetails(data) {
 function switchGalleryImg(src, el, index) {
   const mainImg = document.getElementById('galleryMainImg');
   if (mainImg) mainImg.src = src;
-  
+
   if (typeof index !== 'undefined') {
     state.currentPhotoIndex = index;
     const photos = Array.isArray(state.currentListing.photos) ? state.currentListing.photos : [state.currentListing.photos || ''];
@@ -1236,7 +1235,7 @@ async function renderSellerPage() {
 
   if (typeof sb !== 'undefined' && seller.id && seller.id !== 'undefined' && seller.id !== 'null') {
     console.log("👤 Fetching public profile for:", seller.id);
-    
+
     // Use select('*') to be safe against missing columns causing the whole query to fail
     sb.from('profiles').select('*').eq('id', seller.id).single().then(({ data, error }) => {
       if (error) {
@@ -1246,7 +1245,7 @@ async function renderSellerPage() {
 
       if (data) {
         console.log("✅ Seller profile data received:", data);
-        
+
         // 1. Update Profile Picture
         const photoUrl = data.avatar_url || data.picture || data.photo_url || data.photo || data.avatar;
         const avatarContainer = document.getElementById('sellerPageAvatar');
@@ -1257,10 +1256,10 @@ async function renderSellerPage() {
         // 2. Update Contact Info & Bio
         const joinedDate = data.created_at ? new Date(data.created_at) : null;
         const joinedStr = joinedDate ? `Member since ${joinedDate.toLocaleString('default', { month: 'long' })} ${joinedDate.getFullYear()}` : 'Member since 2023';
-        
+
         const infoEl = document.getElementById('sellerPageInfo');
         const contactGridEl = document.getElementById('sellerPageContactGrid');
-        
+
         if (infoEl) {
           const activeCount = DB.listings.filter(l =>
             (l.user_id && String(l.user_id) === String(seller.id)) ||
@@ -1284,7 +1283,7 @@ async function renderSellerPage() {
 
         if (contactGridEl) {
           let contactHTML = '';
-          
+
           if (data.phone) {
             contactHTML += `
               <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-primary); background: #f8fafc; padding: 10px 16px; border-radius: 10px; border: 1px solid #f1f5f9; font-weight: 600;">
@@ -1292,7 +1291,7 @@ async function renderSellerPage() {
                 <span>${data.phone}</span>
               </div>`;
           }
-          
+
           if (data.telegram) {
             const tg = data.telegram.replace('@', '');
             contactHTML += `
@@ -1309,7 +1308,7 @@ async function renderSellerPage() {
                 <span style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${data.email}</span>
               </div>`;
           }
-          
+
           contactGridEl.innerHTML = contactHTML;
         }
       }
@@ -1499,9 +1498,8 @@ function goToStep(step) {
     const cat = document.getElementById('postCategory').value;
     const cond = document.getElementById('postCondition').value;
     const price = document.getElementById('postPrice').value;
-    const desc = document.getElementById('postDesc').value.trim();
 
-    if (!title || !cat || !cond || !price || !desc) {
+    if (!title || !cat || !cond || !price) {
       showToast('Please fill all required fields in Step 1', 'error');
       return;
     }
@@ -1529,8 +1527,8 @@ function goToStep(step) {
 
   if (step === 4) {
     // Step 3 Validation (Photos)
-    if (postImages.length === 0) {
-      showToast('Please upload at least one photo', 'error');
+    if (postImages.length < 2) {
+      showToast('Please upload at least 2 photos for a professional listing', 'error');
       return;
     }
   }
@@ -1608,15 +1606,21 @@ async function submitListing(event) {
   const telegram = document.getElementById('postTelegram').value.trim();
   const termsChecked = document.getElementById('postTerms').checked;
 
-  if (!title || !cat || !cond || !description || !price || !name || !phone || !termsChecked) {
+  if (!title || !cat || !cond || !price || !name || !phone || !termsChecked) {
     if (!termsChecked) {
       showToast("Please confirm that you agree to BUBU's terms before posting.", 'error');
       return;
     }
     showToast('Please fill in all required fields', 'error');
-    if (!title || !cat || !description || !cond || !price) goToStep(1);
-    else if (postImageFiles.length === 0) goToStep(2);
-    else goToStep(3); // If user info is missing
+    if (!title || !cat || !cond || !price) goToStep(1);
+    else if (postImages.length < 2) goToStep(3); // Photos are in step 3
+    else goToStep(4); // If user info is missing (step 4)
+    return;
+  }
+
+  if (postImages.length < 2) {
+    showToast('Please upload at least 2 photos', 'error');
+    goToStep(3);
     return;
   }
 
@@ -1627,7 +1631,7 @@ async function submitListing(event) {
   try {
     const existingPhotos = postImages.filter(img => img.isExisting).map(img => img.src);
     const newFiles = postImages.filter(img => !img.isExisting).map(img => img.file);
-    
+
     let finalPhotoUrls = [...existingPhotos];
     if (newFiles.length > 0) {
       console.log(`Preparing to upload ${newFiles.length} photos...`);
@@ -2160,13 +2164,6 @@ async function confirmDelete() {
 /* ============================================================
    SEARCH
 ============================================================ */
-function doSearch() {
-  const q = document.getElementById('heroSearch')?.value || document.getElementById('navSearch')?.value || '';
-  state.searchQuery = q;
-  if (q.trim()) saveSearchHistory(q.trim());
-  hideRecentSearches();
-  navigate('search', { query: q });
-}
 
 /* ============================================================
    SORT
@@ -2767,7 +2764,7 @@ async function executeAccountDeletion() {
 
   try {
     showToast('Cleaning up your data...', 'info');
-    
+
     // 1. Delete all listings
     const { error: listingsError } = await sb
       .from('ads')
@@ -2794,7 +2791,7 @@ async function executeAccountDeletion() {
 
     closeModal('deleteAccountModal');
     showToast('Account and listings deleted successfully.', 'success');
-    
+
     setTimeout(() => {
       navigate('home');
       window.location.reload();
@@ -3132,18 +3129,16 @@ function closeBroadcastModal() {
   if (modal) modal.style.display = 'none';
 }
 function handleSearchVisibility() {
-  // Mobile: Search is always visible via CSS !important, so we skip logic here.
-  if (window.innerWidth <= 768) return;
-
   const headerSearch = document.getElementById('headerSearchContainer');
   if (!headerSearch) return;
 
   if (state.currentPage === 'home') {
     const heroSearch = document.getElementById('heroSearch');
-    if (heroSearch) {
+    if (heroSearch && window.getComputedStyle(heroSearch).display !== 'none') {
       const heroRect = heroSearch.getBoundingClientRect();
-      // On desktop/tablet, hide header search until hero search is scrolled past
-      if (heroRect.bottom < 80) {
+      // On desktop, we want to show the top nav search as soon as the hero search starts leaving the view
+      const threshold = window.innerWidth <= 768 ? 10 : 80;
+      if (heroRect.bottom < threshold) {
         headerSearch.classList.add('visible');
       } else {
         headerSearch.classList.remove('visible');
@@ -3154,6 +3149,70 @@ function handleSearchVisibility() {
   } else {
     headerSearch.classList.add('visible');
   }
+}
+
+/* ============================================================
+   SMART SEARCH & SUGGESTIONS
+============================================================ */
+function normalizeSearchText(text) {
+  if (!text) return '';
+  return text.toLowerCase().replace(/\s+/g, '');
+}
+
+function handleSearchInput(event, context) {
+  const query = event.target.value;
+  if (event.key === 'Enter') {
+    performSearch(context);
+    return;
+  }
+  renderSearchSuggestions(query, context);
+}
+
+function renderSearchSuggestions(query, context) {
+  const suggestionsDiv = document.getElementById('searchSuggestions');
+  if (!suggestionsDiv) return;
+
+  if (!query || query.length < 2) {
+    suggestionsDiv.classList.add('hidden');
+    return;
+  }
+
+  const normalizedQuery = normalizeSearchText(query);
+  const matches = DB.listings
+    .filter(l => !l.sold)
+    .filter(l => normalizeSearchText(l.title).includes(normalizedQuery))
+    .slice(0, 6);
+
+  if (matches.length === 0) {
+    suggestionsDiv.classList.add('hidden');
+    return;
+  }
+
+  suggestionsDiv.innerHTML = matches.map(l => `
+    <div class="search-suggestion-item" onclick="selectSuggestion('${l.id}')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+      <span>${l.title}</span>
+    </div>
+  `).join('');
+  suggestionsDiv.classList.remove('hidden');
+}
+
+function selectSuggestion(id) {
+  const suggestionsDiv = document.getElementById('searchSuggestions');
+  if (suggestionsDiv) suggestionsDiv.classList.add('hidden');
+  openListing(id);
+}
+
+function performSearch(context) {
+  const inputId = context === 'hero' ? 'heroSearch' : 'navSearch';
+  const query = document.getElementById(inputId)?.value || '';
+
+  const suggestionsDiv = document.getElementById('searchSuggestions');
+  if (suggestionsDiv) suggestionsDiv.classList.add('hidden');
+
+  state.searchQuery = query;
+  if (query.trim()) saveSearchHistory(query.trim());
+  navigate('search', { query: query });
 }
 
 
