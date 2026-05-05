@@ -2791,23 +2791,8 @@ footer {
     padding: 40px 16px;
   }
 
-  .hero-search {
-    flex-wrap: wrap;
-    border-radius: var(--radius-lg);
-  }
-
-  .hero-search select {
-    border-left: none;
-    border-top: 1.5px solid var(--border);
-    width: 100%;
-    padding: 10px 16px;
-  }
-
-  .hero-search button {
-    width: 100% !important;
-    padding: 14px !important;
-    height: auto !important;
-    display: block !important;
+  .topnav-search {
+    display: none;
   }
 
   .topnav-search {
@@ -3249,9 +3234,16 @@ footer {
   .side-menu-item:active { background: #f1f5f9; }
 
   .side-menu-icon {
-    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 24px;
-    text-align: center;
+    height: 24px;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+  }
+  .side-menu-item:hover .side-menu-icon {
+    color: var(--primary);
   }
 
   .side-menu-footer {
@@ -3297,7 +3289,12 @@ footer {
   }
 
   .hero-search button {
-    display: none !important; /* On mobile, we usually don't need a text button in the input */
+    display: flex !important;
+    padding: 0 16px !important;
+  }
+  
+  .search-btn-text {
+    display: none !important;
   }
 
   /* ── FOOTER ─────────────────────────────────────────────── */
