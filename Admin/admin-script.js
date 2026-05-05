@@ -1,3 +1,14 @@
+// --- SECURITY HELPERS ---
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // --- ADMIN STATE ---
 const ADMIN_SECRET = "bubu2026"; // Default secret key
 const adminState = {

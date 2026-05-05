@@ -2,6 +2,19 @@
 
 
 /* ============================================================
+   SECURITY & HELPERS
+============================================================ */
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ============================================================
    DATA STORE & CONFIG
 ============================================================ */
 let globalUserAds = []; // Stores the master list of ads
@@ -514,7 +527,7 @@ function renderListingCard(listing) {
         <div style="font-size: 10px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; line-height: 1; margin-bottom: 2px; text-align: left;">${brand} • ${listing.category || 'Item'}</div>
         
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; text-align: left;">
-          <div class="card-title" style="font-size: 15px; font-weight: 800; color: var(--text-primary); line-height: 1.2; max-height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; flex: 1; text-transform: capitalize; margin: 0; padding: 0; text-align: left;">${listing.title.trim()}</div>
+          <div class="card-title" style="font-size: 15px; font-weight: 800; color: var(--text-primary); line-height: 1.2; max-height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; flex: 1; text-transform: capitalize; margin: 0; padding: 0; text-align: left;">${escapeHTML(listing.title).trim()}</div>
           <div style="font-size: 16px; font-weight: 900; color: var(--primary); white-space: nowrap; margin-top: -1px; text-align: right;">ETB ${Number(listing.price).toLocaleString()}</div>
         </div>
         
@@ -525,7 +538,7 @@ function renderListingCard(listing) {
                style="display: flex; align-items: center; gap: 6px; color: var(--text-primary); font-size: 13px; font-weight: 700; cursor: pointer; transition: color 0.2s;"
                onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-primary)'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span style="max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${listing.seller || 'Seller'}</span>
+            <span style="max-width: 1100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHTML(listing.seller) || 'Seller'}</span>
           </div>
           <button style="background: var(--primary); color: white; border: none; padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
             VIEW
@@ -2077,7 +2090,7 @@ async function renderUserListings(tab) {
         ${tab === 'favourites' ? `<button class="wishlist-btn saved" onclick="removeFromFavourites(event, '${l.id}')" title="Remove from saved">${bookmarkFilled}</button>` : ''}
       </div>
       <div class="card-body" style="cursor:pointer" onclick="openListing('${l.id}')">
-        <div class="card-title">${l.title}</div>
+        <div class="card-title">${escapeHTML(l.title)}</div>
         ${getSpecsHtml(l)}
         <div class="card-price">${formatPrice(l.price)}</div>
       </div>
