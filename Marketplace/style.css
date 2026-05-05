@@ -3038,8 +3038,9 @@ footer {
   }
 
   .topnav-left {
-    width: 100%;
-    justify-content: space-between;
+    width: auto !important;
+    flex: 1 !important;
+    justify-content: flex-start !important;
   }
 
   .topnav-logo span {
@@ -3054,13 +3055,26 @@ footer {
     visibility: visible !important;
     transform: none !important;
     pointer-events: all !important;
-    height: 42px !important;
-    margin: 0 !important;
+    height: 44px !important;
+    margin: 4px 0 2px 0 !important;
+    order: 10 !important; /* Forces it to the bottom row */
   }
 
-  .topnav-search input { font-size: 14px !important; }
+  .topnav-search input { 
+    font-size: 14px !important; 
+    min-width: 0 !important; /* Allows flex-grow to work correctly */
+  }
 
-  .topnav-actions { gap: 8px !important; }
+  .btn-nav-search {
+    flex-shrink: 0 !important; /* Prevents the button from being squashed or moved */
+  }
+
+  .topnav-actions { 
+    gap: 10px !important; 
+    width: auto !important;
+    flex: 0 0 auto !important;
+    justify-content: flex-end !important;
+  }
 
   .btn-post-ad {
     padding: 8px 14px !important;

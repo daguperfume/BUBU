@@ -1,30 +1,5 @@
-/* ============================================================
-   SERVICE WORKER & OFFLINE SUPPORT
-============================================================ */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      console.log('SW Registered', reg.scope);
-    }).catch(err => {
-      console.warn('SW Registration failed', err);
-    });
-  });
-}
 
-// Global Offline Detection
-window.addEventListener('offline', () => {
-  const overlay = document.getElementById('offlineOverlay');
-  if (overlay) overlay.style.display = 'flex';
-});
 
-window.addEventListener('online', () => {
-  const overlay = document.getElementById('offlineOverlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-    // Optionally refresh data
-    if (typeof loadAds === 'function') loadAds();
-  }
-});
 
 /* ============================================================
    DATA STORE & CONFIG
