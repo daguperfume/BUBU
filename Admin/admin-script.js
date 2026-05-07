@@ -74,45 +74,8 @@ function showToast(msg) {
     }, 3000);
 }
 
-// --- ADMIN AUTHENTICATION GATE ---
-let adminLoginAttempts = 0;
-const MAX_LOGIN_ATTEMPTS = 3;
-
-function checkAdminLogin() {
-    if (adminLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
-        const errEl = document.getElementById('adminLoginError');
-        if (errEl) { errEl.textContent = '✗ Too many attempts. Refresh the page.'; errEl.style.display = 'block'; }
-        return;
-    }
-    const entered = document.getElementById('adminPasswordInput').value;
-    if (entered === ADMIN_SECRET) {
-        const name = document.getElementById('adminNameInput').value.trim() || 'Admin';
-        sessionStorage.setItem('admin_authenticated', '1');
-        sessionStorage.setItem('admin_name', name);
-        document.getElementById('adminLoginGate').style.display = 'none';
-        document.getElementById('adminDashboard').style.display = '';
-        initAdmin();
-    } else {
-        adminLoginAttempts++;
-        const errEl = document.getElementById('adminLoginError');
-        if (errEl) {
-            errEl.textContent = `✗ Incorrect access code. ${MAX_LOGIN_ATTEMPTS - adminLoginAttempts} attempt(s) remaining.`;
-            errEl.style.display = 'block';
-        }
-        document.getElementById('adminPasswordInput').value = '';
-        document.getElementById('adminPasswordInput').focus();
-    }
-}
-
 window.onload = () => {
-    // Check if already authenticated in this browser session
-    if (sessionStorage.getItem('admin_authenticated') === '1') {
-        document.getElementById('adminLoginGate').style.display = 'none';
-        document.getElementById('adminDashboard').style.display = '';
-        initAdmin();
-    } else {
-        document.getElementById('adminPasswordInput').focus();
-    }
+    initAdmin();
 };
 
 // --- CORE LOGIC ---
@@ -133,6 +96,7 @@ function findUserPhoto(u) {
 }
 
 async function initAdmin() {
+    console.log("Admin Initializing...");
     await refreshData();
     setupNavigation();
 }
@@ -140,26 +104,32 @@ async function initAdmin() {
 async function refreshData() {
     try {
         // 1. Fetch Users (Profiles table)
-        const { data: users, error: uErr } = await sb.from('profiles').select('*');
-        if (uErr) throw uErr;
-        adminState.users = users || [];
+        try {
+            const { data: users, error: uErr } = await sb.from('profiles').select('*');
+            if (uErr) console.warn("Failed to fetch users:", uErr.message);
+            else adminState.users = users || [];
+        } catch(e) { console.error("Exception fetching users:", e); }
 
         // 2. Fetch Ads
-        const { data: ads, error: aErr } = await sb.from('ads').select('*').order('created_at', { ascending: false });
-        if (aErr) throw aErr;
-        adminState.ads = ads || [];
+        try {
+            const { data: ads, error: aErr } = await sb.from('ads').select('*').order('created_at', { ascending: false });
+            if (aErr) console.warn("Failed to fetch ads:", aErr.message);
+            else adminState.ads = ads || [];
+        } catch(e) { console.error("Exception fetching ads:", e); }
 
         // 3. Fetch Reports
-        const { data: reports, error: rErr } = await sb.from('reports').select('*').order('created_at', { ascending: false });
-        if (rErr) throw rErr;
-        adminState.reports = reports || [];
+        try {
+            const { data: reports, error: rErr } = await sb.from('reports').select('*').order('created_at', { ascending: false });
+            if (rErr) console.warn("Failed to fetch reports:", rErr.message);
+            else adminState.reports = reports || [];
+        } catch(e) { console.error("Exception fetching reports:", e); }
 
         // 4. Fetch Audit Logs (Safely)
         try {
             const { data: logs, error: logErr } = await sb.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(100);
             if (!logErr) adminState.auditLogs = logs || [];
         } catch(e) {
-            console.warn("Audit logs table might not exist yet.");
+            console.error("Exception fetching audit logs:", e);
         }
 
         // Safely update UI sections
@@ -236,7 +206,7 @@ function updateGrowthStats() {
 }
 
 async function logAudit(action, details, targetId = null) {
-    const adminName = sessionStorage.getItem('admin_name') || 'Admin';
+    const adminName = localStorage.getItem('admin_name') || 'Admin';
     try {
         await sb.from('audit_logs').insert([{
             admin_name: adminName,
@@ -403,7 +373,7 @@ function renderListings(filteredList = null) {
                          style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;"
                          onclick="openImageViewer(this.src)">
                     <div>
-                        <div style="font-weight:700">${escapeHTML(ad.title.slice(0,30))}</div>
+                        <div style="font-weight:700">${ad.title.slice(0,30)}</div>
                         <div style="display:flex; gap:8px; align-items:center;">
                             <span style="font-size:11px; color:#64748b">ID: ${ad.id}</span>
                             <span style="font-size:11px; color:#6366f1; font-weight:700;">👁 ${ad.views || 0} views</span>
@@ -413,7 +383,7 @@ function renderListings(filteredList = null) {
             </td>
             <td>
                 <div style="position:relative; cursor:pointer;" onclick="viewUserProfile('${ad.user_id}')">
-                    <span style="border-bottom: 1px dashed #6366f1; color: #6366f1; font-weight: 700;">${escapeHTML(ad.seller_name || 'Seller')}</span>
+                    <span style="border-bottom: 1px dashed #6366f1; color: #6366f1; font-weight: 700;">${ad.seller_name || 'Seller'}</span>
                 </div>
             </td>
             <td style="font-weight:700; color:#1e293b">${Number(ad.price).toLocaleString()}</td>
@@ -489,8 +459,8 @@ function renderAuditLogs() {
             </td>
             <td style="font-size:11px; color:#64748b;">${timeStr}</td>
             <td ${targetClick}>${targetDisplay}</td>
-            <td><span style="background:#f1f5f9; color:#475569; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:700; text-transform:uppercase">${escapeHTML(log.action)}</span></td>
-            <td style="font-size:12px; color:#475569;">${escapeHTML(log.details || '')}</td>
+            <td><span style="background:#f1f5f9; color:#475569; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:700; text-transform:uppercase">${log.action}</span></td>
+            <td style="font-size:12px; color:#475569;">${log.details || ''}</td>
         </tr>`;
     }).join('');
 }
@@ -509,7 +479,7 @@ async function loadBroadcastStatus() {
 
         statusEl.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div>Current Msg: <span style="color: #6366f1">${escapeHTML(msg)}</span></div>
+                <div>Current Msg: <span style="color: #6366f1">${msg}</span></div>
                 <div>Mode: <span style="${maintenance ? 'color: #ef4444' : 'color: #10b981'}">${maintenance ? 'MAINTENANCE ACTIVE' : 'Operational'}</span></div>
             </div>
         `;
@@ -568,8 +538,8 @@ function renderUsers(specificUsers = null) {
                     <div style="width:48px; height:48px; border-radius:12px; overflow:hidden; background:#f1f5f9; border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                         ${(() => {
                             const pPhoto = findUserPhoto(u);
-                            if (pPhoto) return `<img src="${escapeHTML(pPhoto)}" style="width:100%; height:100%; object-fit:cover;">`;
-                            return `<span style="font-weight:800; color:#94a3b8; font-size:16px;">${escapeHTML(u.name ? u.name[0] : '?')}</span>`;
+                            if (pPhoto) return `<img src="${pPhoto}" style="width:100%; height:100%; object-fit:cover;">`;
+                            return `<span style="font-weight:800; color:#94a3b8; font-size:16px;">${u.name ? u.name[0] : '?'}</span>`;
                         })()}
                     </div>
                     <div>
@@ -578,10 +548,10 @@ function renderUsers(specificUsers = null) {
                              onmouseover="this.style.color='#4338ca'; this.style.textDecoration='underline'"
                              onmouseout="this.style.color='#1e293b'; this.style.textDecoration='none'"
                              title="View Internal Profiling">
-                            ${escapeHTML(u.name || 'Anonymous')}
+                            ${u.name || 'Anonymous'}
                         </div>
                         <div style="font-size:10px; color:#94a3b8; font-weight:600">ID: ${String(u.id).slice(0, 8)}</div>
-                        <div style="font-size:10px; color:#64748b;">${escapeHTML(u.email)}</div>
+                        <div style="font-size:10px; color:#64748b;">${u.email}</div>
                     </div>
                 </div>
             </td>
@@ -590,7 +560,7 @@ function renderUsers(specificUsers = null) {
                     <!-- BANNED: Show Reason -->
                     <div style="position:relative;">
                         <div id="reason-text-${u.id}" style="font-size:12px; color:#b91c1c; font-weight:700; background:#fef2f2; padding:8px 30px 8px 12px; border-radius:8px; border:1px solid #fecaca; line-height:1.4; word-break: break-word; overflow:hidden; max-height:45px; transition:max-height 0.3s ease;">
-                            ${escapeHTML(u.ban_reason || 'No reason provided')}
+                            ${u.ban_reason || 'No reason provided'}
                         </div>
                         <button onclick="toggleReasonExpand('${u.id}', this)" style="position:absolute; top:8px; right:8px; background:none; border:none; cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center; color:#ef4444; transition: transform 0.2s;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -600,7 +570,7 @@ function renderUsers(specificUsers = null) {
                     <!-- ACTIVE: Show Admin Note -->
                     <div style="position:relative; group">
                         <div id="note-text-${u.id}" style="font-size:12px; color:#475569; font-weight:600; background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0; line-height:1.4; word-break: break-word; font-style:italic;">
-                            ${u.admin_notes ? escapeHTML(u.admin_notes) : '<span style="opacity:0.5; font-weight:400;">No notes...</span>'}
+                            ${u.admin_notes || '<span style="opacity:0.5; font-weight:400;">No notes...</span>'}
                         </div>
                         <button onclick="editAdminNote('${u.id}')" style="margin-top:4px; font-size:10px; color:#6366f1; border:none; background:none; font-weight:700; cursor:pointer; padding:0; text-decoration:underline;">
                             Edit Note
@@ -608,7 +578,7 @@ function renderUsers(specificUsers = null) {
                     </div>
                 `}
             </td>
-            <td>${escapeHTML(u.phone || '—')}</td>
+            <td>${u.phone || '—'}</td>
             <td style="text-align:center; font-weight:700; color:#6366f1">
                 ${(adminState.ads || []).filter(a => String(a.user_id) === String(u.id)).length}
             </td>
@@ -753,7 +723,7 @@ function renderReports() {
             <td><span style="background:#fee2e2; color:#b91c1c; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700">${r.reason}</span></td>
             <td style="font-size:13px; color:#64748b; max-width:250px">${r.details || '—'}</td>
             <td style="display:flex; gap:8px">
-                <button class="btn-action" style="background:#e0e7ff; color:#4338ca; border:none" onclick="viewUserAds('${r.listing_id}')">Check Ad</button>
+                <button class="btn-action" style="background:#e0e7ff; color:#4338ca; border:none" onclick="viewAdDetail('${r.listing_id}')">Check Ad</button>
                 <button class="btn-action btn-feature" onclick="dismissReport('${r.id}')">Dismiss</button>
             </td>
         </tr>
