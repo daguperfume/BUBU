@@ -1224,7 +1224,7 @@ function nextGalleryPhoto() {
   state.currentPhotoIndex = (state.currentPhotoIndex + 1) % photos.length;
   const nextSrc = photos[state.currentPhotoIndex];
 
-  const thumbs = document.querySelectorAll('.gallery-thumb');
+  const thumbs = document.querySelectorAll('#galleryThumbs img');
   switchGalleryImg(nextSrc, thumbs[state.currentPhotoIndex], state.currentPhotoIndex);
 }
 
@@ -1235,9 +1235,15 @@ function prevGalleryPhoto() {
   state.currentPhotoIndex = (state.currentPhotoIndex - 1 + photos.length) % photos.length;
   const prevSrc = photos[state.currentPhotoIndex];
 
-  const thumbs = document.querySelectorAll('.gallery-thumb');
+  const thumbs = document.querySelectorAll('#galleryThumbs img');
   switchGalleryImg(prevSrc, thumbs[state.currentPhotoIndex], state.currentPhotoIndex);
 }
+
+function navigateGallery(dir) {
+  if (dir === 1) nextGalleryPhoto();
+  else prevGalleryPhoto();
+}
+
 
 
 /* ============================================================
@@ -2367,28 +2373,21 @@ async function renderUserListings(tab) {
           ${l.featured && !l.sold ? '<span class="badge-featured">⭐ Featured</span>' : ''}
           <span class="badge-condition ${l.condition === 'new' ? 'badge-new' : 'badge-used'}">${l.condition === 'new' ? 'New' : 'Used'}</span>
         </div>
-        ${tab === 'favourites' ? `<button class="wishlist-btn saved" onclick="removeFromFavourites(event, '${l.id}')" title="Remove from saved">${bookmarkFilled}</button>` : ''}
+      ${tab === 'favourites' ? `<button class="wishlist-btn saved" onclick="removeFromFavourites(event, '${l.id}')" title="Remove from saved">${bookmarkFilled}</button>` : ''}
       </div>
+      ${tab === 'active' ? `
+      <div class="card-action-grid" style="position: absolute; top: 8px; right: 8px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; z-index: 10;">
+        <button class="action-icon-btn" onclick="event.stopPropagation(); editListing('${l.id}')" style="background: white; border: 1.5px solid #f1f5f9; border-radius: 8px; width: 52px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); font-size: 12px; font-weight: 800; font-family: var(--font);">EDIT</button>
+        <button class="action-icon-btn" onclick="event.stopPropagation(); markAsSold('${l.id}', false)" style="background: white; border: 1.5px solid #f1f5f9; border-radius: 8px; width: 52px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--success); font-size: 12px; font-weight: 800; font-family: var(--font);">SOLD</button>
+        <button class="action-icon-btn" onclick="event.stopPropagation(); moveToTop('${l.id}')" style="background: white; border: 1.5px solid #f1f5f9; border-radius: 8px; width: 52px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary); font-size: 12px; font-weight: 800; font-family: var(--font);">TOP</button>
+        <button class="action-icon-btn" onclick="event.stopPropagation(); promptDelete('${l.id}')" style="background: white; border: 1.5px solid #fee2e2; border-radius: 8px; width: 52px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--danger); font-size: 12px; font-weight: 800; font-family: var(--font);">DEL</button>
+      </div>
+      ` : ''}
       <div class="card-body" style="cursor:pointer" onclick="openListing('${l.id}')">
         <div class="card-title">${escapeHTML(l.title)}</div>
         ${getSpecsHtml(l)}
         <div class="card-price">${formatPrice(l.price)}</div>
       </div>
-      ${tab === 'active' ? `
-      <div class="user-listing-actions" style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-        <button class="btn-edit-listing" onclick="editListing('${l.id}')">Edit</button>
-        <button class="btn-del-listing" onclick="promptDelete('${l.id}')">Delete</button>
-        <button onclick="markAsSold('${l.id}', false)"
-          style="padding:7px; border-radius:8px; font-size:12px; font-weight:700; font-family:var(--font); cursor:pointer; border:none;
-                 background:#fef9c3; color:#854d0e; transition:all .2s;">
-          Mark Sold
-        </button>
-        <button onclick="moveToTop('${l.id}')"
-          style="padding:7px; border-radius:8px; font-size:12px; font-weight:700; font-family:var(--font); cursor:pointer; border:none;
-                 background:#eff6ff; color:#1d4ed8; transition:all .2s;">
-          Move to Top
-        </button>
-      </div>` : ''}
       ${tab === 'sold' ? `
       <div class="user-listing-actions">
         <button onclick="markAsSold('${l.id}', true)"
@@ -2404,6 +2403,39 @@ async function renderUserListings(tab) {
     </div>
   `).join('');
 }
+
+function toggleCardMenu(id) {
+  const menu = document.getElementById('menu-' + id);
+  if (!menu) return;
+  const isVisible = menu.style.display === 'flex';
+  
+  closeAllCardMenus();
+  
+  if (!isVisible) {
+    menu.style.display = 'flex';
+    if (window.innerWidth <= 768) {
+        menu.classList.add('mobile-popup');
+        const overlay = document.getElementById('cardMenuOverlay');
+        if (overlay) overlay.classList.add('active');
+    }
+  }
+}
+
+function closeAllCardMenus() {
+  document.querySelectorAll('.card-menu-dropdown').forEach(el => {
+    el.style.display = 'none';
+    el.classList.remove('mobile-popup');
+  });
+  const overlay = document.getElementById('cardMenuOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// Global click to close card menus
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.card-menu-container') && !e.target.closest('.mobile-popup')) {
+    closeAllCardMenus();
+  }
+});
 
 function promptDelete(id) {
   state.deleteTarget = id;
@@ -3339,38 +3371,150 @@ async function moveToTop(id) {
    IMAGE VIEWER
 ============================================================ */
 function showImageModal(src) {
+  const photos = Array.isArray(state.currentListing?.photos) ? state.currentListing.photos : [src];
+  let currentIndex = state.currentPhotoIndex || 0;
+
   const overlay = document.createElement('div');
+  overlay.className = 'image-modal-overlay';
   overlay.style.position = 'fixed';
   overlay.style.top = '0';
   overlay.style.left = '0';
   overlay.style.width = '100vw';
   overlay.style.height = '100vh';
-  overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
-  overlay.style.backdropFilter = 'blur(10px)';
+  overlay.style.backgroundColor = 'rgba(0,0,0,0.98)';
+  overlay.style.backdropFilter = 'blur(15px)';
   overlay.style.zIndex = '9999999';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
-  overlay.style.cursor = 'zoom-out';
-  overlay.style.padding = '10px';
-  overlay.onclick = () => document.body.removeChild(overlay);
+  overlay.style.padding = '20px';
+  overlay.style.animation = 'fadeIn 0.3s ease';
+
+  // Close on click background
+  overlay.onclick = (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+      document.removeEventListener('keydown', handleEsc);
+    }
+  };
+
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '×';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '20px';
+  closeBtn.style.right = '20px';
+  closeBtn.style.background = 'rgba(255,255,255,0.1)';
+  closeBtn.style.border = 'none';
+  closeBtn.style.color = 'white';
+  closeBtn.style.fontSize = '40px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.width = '60px';
+  closeBtn.style.height = '60px';
+  closeBtn.style.borderRadius = '50%';
+  closeBtn.style.display = 'flex';
+  closeBtn.style.alignItems = 'center';
+  closeBtn.style.justifyContent = 'center';
+  closeBtn.style.zIndex = '10';
+  closeBtn.onclick = () => {
+    document.body.removeChild(overlay);
+    document.removeEventListener('keydown', handleEsc);
+  };
+  overlay.appendChild(closeBtn);
 
   const img = document.createElement('img');
-  img.src = src;
-  // Ensure the image is as large as possible without overflowing
-  img.style.maxWidth = '95%';
-  img.style.maxHeight = '95%';
-  img.style.width = 'auto';
-  img.style.height = 'auto';
-  // If the image is very small, we still want it to appear reasonably large
-  img.style.minWidth = '320px';
-  img.style.borderRadius = '12px';
-  img.style.boxShadow = '0 30px 60px rgba(0,0,0,0.7)';
+  img.src = photos[currentIndex];
+  img.style.maxWidth = '90%';
+  img.style.maxHeight = '90%';
   img.style.objectFit = 'contain';
-
+  img.style.borderRadius = '8px';
+  img.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)';
+  img.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
   overlay.appendChild(img);
+
+  if (photos.length > 1) {
+    const updateImage = (newIdx) => {
+      currentIndex = (newIdx + photos.length) % photos.length;
+      img.style.opacity = '0';
+      setTimeout(() => {
+        img.src = photos[currentIndex];
+        img.style.opacity = '1';
+        counter.textContent = `${currentIndex + 1} / ${photos.length}`;
+        // Also update the detail page photo so they are synced
+        switchGalleryImg(photos[currentIndex], null, currentIndex);
+      }, 200);
+    };
+
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+    prevBtn.style.position = 'absolute';
+    prevBtn.style.left = '30px';
+    prevBtn.style.background = 'rgba(255,255,255,0.1)';
+    prevBtn.style.border = 'none';
+    prevBtn.style.color = 'white';
+    prevBtn.style.width = '60px';
+    prevBtn.style.height = '60px';
+    prevBtn.style.borderRadius = '50%';
+    prevBtn.style.cursor = 'pointer';
+    prevBtn.style.display = 'flex';
+    prevBtn.style.alignItems = 'center';
+    prevBtn.style.justifyContent = 'center';
+    prevBtn.onclick = (e) => { e.stopPropagation(); updateImage(currentIndex - 1); };
+    overlay.appendChild(prevBtn);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+    nextBtn.style.position = 'absolute';
+    nextBtn.style.right = '30px';
+    nextBtn.style.background = 'rgba(255,255,255,0.1)';
+    nextBtn.style.border = 'none';
+    nextBtn.style.color = 'white';
+    nextBtn.style.width = '60px';
+    nextBtn.style.height = '60px';
+    nextBtn.style.borderRadius = '50%';
+    nextBtn.style.cursor = 'pointer';
+    nextBtn.style.display = 'flex';
+    nextBtn.style.alignItems = 'center';
+    nextBtn.style.justifyContent = 'center';
+    nextBtn.onclick = (e) => { e.stopPropagation(); updateImage(currentIndex + 1); };
+    overlay.appendChild(nextBtn);
+
+    const counter = document.createElement('div');
+    counter.textContent = `${currentIndex + 1} / ${photos.length}`;
+    counter.style.position = 'absolute';
+    counter.style.bottom = '40px';
+    counter.style.color = 'white';
+    counter.style.fontSize = '18px';
+    counter.style.fontWeight = '700';
+    counter.style.background = 'rgba(0,0,0,0.5)';
+    counter.style.padding = '8px 20px';
+    counter.style.borderRadius = '30px';
+    overlay.appendChild(counter);
+
+    // Keyboard navigation
+    const handleKey = (e) => {
+      if (e.key === 'ArrowLeft') updateImage(currentIndex - 1);
+      if (e.key === 'ArrowRight') updateImage(currentIndex + 1);
+    };
+    document.addEventListener('keydown', handleKey);
+    // Cleanup key listener when closed
+    const originalClose = closeBtn.onclick;
+    closeBtn.onclick = () => {
+      originalClose();
+      document.removeEventListener('keydown', handleKey);
+    };
+  }
+
+  const handleEsc = (e) => {
+    if (e.key === 'Escape') {
+      if (overlay.parentNode) document.body.removeChild(overlay);
+      document.removeEventListener('keydown', handleEsc);
+    }
+  };
+  document.addEventListener('keydown', handleEsc);
+
   document.body.appendChild(overlay);
 }
+
 
 /* ============================================================
    SYSTEM BROADCAST & MAINTENANCE

@@ -5,7 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BUBU Gebeya</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'%3E%3Cpath d='M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z'/%3E%3C/svg%3E" type="image/svg+xml" />
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'%3E%3Cpath d='M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z'/%3E%3C/svg%3E"
+    type="image/svg+xml" />
   <meta name="description"
     content="BUBU Gebeya — Ethiopia's fastest growing local classifieds marketplace. Buy, sell, and connect with millions of Ethiopians." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -29,6 +31,7 @@
      TOAST CONTAINER
 ============================================================ -->
   <div class="toast-container" id="toastContainer"></div>
+  <div id="cardMenuOverlay" class="card-menu-overlay" onclick="closeAllCardMenus()"></div>
 
   <!-- MAINTENANCE OVERLAY -->
   <div id="maintenanceOverlay"
@@ -60,7 +63,7 @@
     <div class="topnav-left">
       <button class="btn-back-nav hidden" id="globalBackButton" onclick="navigate('home')"
         style="margin-right: 12px; padding: 8px 16px; margin-bottom: 0; font-size: 13px; gap: 4px;">
-        Back </button>
+        Home </button>
       <div style="display: flex; align-items: center; gap: 8px;">
         <button class="topnav-logo" onclick="navigate('home')"
           style="display: flex; align-items: center; background: none; border: none; cursor: pointer; padding: 0;">
@@ -76,7 +79,8 @@
           <path d="m21 21-4.35-4.35" />
         </svg>
       </span>
-      <input type="text" placeholder="Search listings…" id="navSearch" onkeyup="handleSearchInput(event, 'nav')" autocomplete="off" />
+      <input type="text" placeholder="Search listings…" id="navSearch" onkeyup="handleSearchInput(event, 'nav')"
+        autocomplete="off" />
       <button class="btn-nav-search" onclick="performSearch('nav')"
         style="display: flex; align-items: center; justify-content: center; padding: 8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -89,7 +93,8 @@
 
     <div class="topnav-actions">
       <button class="btn-post-ad" onclick="navigate('post')" style="display: flex; align-items: center; gap: 6px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -158,9 +163,10 @@
             <input type="text" placeholder="Search products, brands, etc..." id="heroSearch"
               style="flex: 1; padding: 0 20px; border: none; outline: none; font-size: 15px; color: var(--text-primary); background: transparent;"
               onkeyup="handleSearchInput(event, 'hero')" autocomplete="off" />
-            <button onclick="performSearch('hero')" 
+            <button onclick="performSearch('hero')"
               style="background: linear-gradient(135deg, var(--primary), var(--tertiary)); color: white; padding: 0 20px; border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; border-top-right-radius: 14px; border-bottom-right-radius: 14px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
@@ -185,13 +191,14 @@
               <div class="slide">
                 <div class="slide-image"
                   style="background: #f8fafc; display: flex; align-items: center; justify-content: center;">
-                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f8fafc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Montserrat, sans-serif' font-size='24' fill='%236366f1' font-weight='800'%3EBUBU GEBEYA%3C/text%3E%3C/svg%3E"
+                  <img
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f8fafc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Montserrat, sans-serif' font-size='24' fill='%236366f1' font-weight='800'%3EBUBU GEBEYA%3C/text%3E%3C/svg%3E"
                     style="width: 80%; height: 80%; object-fit: contain;">
                 </div>
                 <div class="slide-content">
                   <span class="slide-badge">Welcome</span>
                   <h2 class="slide-title">Discover Our Marketplace</h2>
-                  <p class="slide-desc">Experience a tactile, seamless marketplace where buying and selling feels
+                  <p class="slide-desc">Seamless marketplace where buying and selling feels
                     effortless.</p>
                 </div>
               </div>
@@ -457,25 +464,41 @@
         </div>
 
         <!-- 3-COLUMN SECTION (Photos | Listing & Specs | Seller Info) -->
-        <div class="detail-3col-grid" style="display: grid; grid-template-columns: 460px 1fr 320px; gap: 24px;">
+        <div class="detail-3col-grid">
 
           <!-- Column 1: Photos -->
           <div style="display: flex; gap: 12px;">
             <!-- Vertical Photo Strip -->
-            <div id="galleryThumbs" class="detail-thumbs-strip" style="height: 680px; width: 72px;"></div>
+            <div id="galleryThumbs" class="detail-thumbs-strip" style="height: 400px; width: 72px;"></div>
 
             <!-- Main Photo Display -->
             <div id="mainPreviewContainer"
-              style="width: 376px; height: 680px; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; cursor: zoom-in; background: #f8fafc;"
-              ondblclick="toggleImageZoom(event)">
+              style="width: 376px; min-height: 100px; max-height: 500px; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; cursor: zoom-in; background: #f8fafc; position: relative; display: flex; align-items: center; justify-content: center;"
+              onclick="showImageModal(document.getElementById('galleryMainImg').src)">
               <img id="galleryMainImg" src=""
-                style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; transition: transform 0.2s; user-select: none;">
+                style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transform-origin: center; transition: transform 0.2s; user-select: none;">
+
+
+              <!-- Gallery Navigation -->
+              <button class="gallery-nav-btn prev" onclick="navigateGallery(-1)" aria-label="Previous image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button class="gallery-nav-btn next" onclick="navigateGallery(1)" aria-label="Next image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+
             </div>
           </div>
 
           <!-- Column 2: Listing Information & Specs -->
           <div
-            style="background:#f8fafc; padding:24px; border-radius:24px; border:1px solid #f1f5f9; display: flex; flex-direction: column; overflow-y: auto; max-height: 680px;">
+            style="background:#f8fafc; padding:24px; border-radius:24px; border:1px solid #f1f5f9; display: flex; flex-direction: column; overflow-y: auto; max-height: 680px; width: 400px;">
             <h4
               style="font-size:12px; color:#64748b; text-transform:uppercase; margin-bottom:20px; letter-spacing:1px; font-weight:800;">
               Listing Information</h4>
@@ -483,17 +506,17 @@
             <!-- Consolidated Info List -->
             <div id="detailInfoList" style="display:flex; flex-direction:column; gap:12px; margin-bottom: 4px;"></div>
 
-            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #eef2f6;">
-              <h4
-                style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:12px; letter-spacing:1px; font-weight:800;">
-                About this product:</h4>
-              <div style="font-size:14px; color:#475569; line-height:1.6;" id="detailDescText"></div>
-            </div>
-
             <div
-              style="display:flex; justify-content:space-between; align-items:center; border-top:2px solid #f1f5f9; padding-top:15px; margin-top:20px;">
+              style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #eef2f6; border-bottom:1px solid #eef2f6; padding:15px 0;">
               <span style="font-size:14px; color:#1e293b; font-weight:800;">Price (ETB)</span>
               <span style="font-size:24px; font-weight:900; color:var(--primary);" id="detailPriceText"></span>
+            </div>
+
+            <div style="margin-top: 4px;">
+              <h4
+                style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:12px; margin-top: 12px; letter-spacing:1px; font-weight:800;">
+                About this product:</h4>
+              <div style="font-size:14px; color:#475569; line-height:1.6;" id="detailDescText"></div>
             </div>
           </div>
 
@@ -507,8 +530,8 @@
 
 
         <!-- Similar Listings -->
-        <div style="margin-top:16px">
-          <div class="section-title">Similar Listings</div>
+        <div style="margin-top:1px">
+          <div class="section-title">Similar Listings :</div>
           <div class="listings-grid" id="similarGrid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
           </div>
         </div>
@@ -697,7 +720,7 @@
     <div class="container">
       <div class="profile-layout">
         <!-- Left: Profile Card -->
-        <div>
+        <div style="max-height: fit-content;">
           <div class="profile-card">
             <div class="profile-card-cover"></div>
             <div class="profile-card-body">
@@ -726,9 +749,9 @@
                   <div class="profile-info-value" id="profileTelegramDisplay">@username</div>
                 </div>
               </div>
-              
+
               <div id="profileVerificationStatus" style="margin-bottom: 16px;">
-                  <!-- Dynamic verification badge injected here -->
+                <!-- Dynamic verification badge injected here -->
               </div>
 
               <div style="margin-bottom: 16px;">
@@ -745,7 +768,7 @@
                   style="width:100%; padding:10px; border-radius:12px; font-weight:700; font-size:13px; background:var(--primary); color:white; border:none; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);">
                   Edit Profile
                 </button>
-                
+
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
                   <button onclick="navigate('post')"
                     style="padding:10px; border-radius:12px; font-weight:700; font-size:13px; background:white; color:var(--primary); border:1.5px solid var(--primary); cursor:pointer; font-family:var(--font); transition:all 0.2s;">
@@ -756,9 +779,9 @@
                     Logout
                   </button>
                 </div>
-                
+
                 <button onclick="openDeleteAccountModal()"
-                  style="width:100%; padding:8px; border-radius:12px; font-weight:700; font-size:12px; background:transparent; color:#991b1b; border:1px solid rgba(153, 27, 27, 0.15); cursor:pointer; font-family:var(--font); transition:all 0.2s;">
+                  style="width:100%; padding:12px; border-radius:12px; font-weight:700; font-size:12px; background:transparent; color:#991b1b; border:1px solid rgba(153, 27, 27, 0.15); cursor:pointer; font-family:var(--font); transition:all 0.2s;">
                   Delete Account
                 </button>
               </div>
@@ -1356,8 +1379,10 @@
       <div class="topnav-logo" style="padding: 0;">
         <img src="BUBU LOGO.png" alt="BUBU" style="height: 48px; width:auto; border-radius: 6px;" />
       </div>
-      <button class="side-menu-close" onclick="toggleSideMenu()" style="display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 50%; width: 32px; height: 32px; border: none; cursor: pointer; color: var(--text-primary); transition: all 0.2s;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <button class="side-menu-close" onclick="toggleSideMenu()"
+        style="display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 50%; width: 32px; height: 32px; border: none; cursor: pointer; color: var(--text-primary); transition: all 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -1365,42 +1390,51 @@
     </div>
     <div class="side-menu-body">
       <div class="side-menu-section">
-        <div class="side-menu-item" onclick="navigate('home'); toggleSideMenu()">
-          <span class="side-menu-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-          </span>
-          <span>Home</span>
-        </div>
-        <div class="side-menu-item" onclick="navigate('favorites'); toggleSideMenu()">
-          <span class="side-menu-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-            </svg>
-          </span>
-          <span>Saved Listings</span>
-        </div>
+        <!-- 1. My Profile -->
         <div class="side-menu-item" onclick="handleProfileClick(); toggleSideMenu()">
           <span class="side-menu-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </span>
           <span>My Profile</span>
         </div>
-      </div>
-      <div class="side-menu-section">
+
+        <!-- 2. Saved Ads -->
+        <div class="side-menu-item" onclick="navigate('favorites'); toggleSideMenu()">
+          <span class="side-menu-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </span>
+          <span>Saved Ads</span>
+        </div>
+
+        <!-- 3. Post Ad -->
         <div class="side-menu-item" onclick="navigate('post'); toggleSideMenu()">
           <span class="side-menu-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </span>
-          <span>Post an Ad</span>
+          <span>Post Ad</span>
+        </div>
+
+        <!-- 4. Home -->
+        <div class="side-menu-item" onclick="navigate('home'); toggleSideMenu()">
+          <span class="side-menu-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </span>
+          <span>Home</span>
         </div>
       </div>
     </div>
@@ -1411,10 +1445,13 @@
 
   <!-- IMAGE CROP MODAL -->
   <div id="cropModal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 540px; width: 100%; padding: 0; overflow: hidden; border-radius: 20px;">
-      <div style="padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+    <div class="modal-content"
+      style="max-width: 540px; width: 100%; padding: 0; overflow: hidden; border-radius: 20px;">
+      <div
+        style="padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin:0; font-size:17px; font-weight:800;">✂️ Crop Your Photo</h3>
-        <button onclick="closeModal('cropModal')" style="background:none; border:none; font-size:22px; cursor:pointer; color: var(--text-secondary); line-height:1;">×</button>
+        <button onclick="closeModal('cropModal')"
+          style="background:none; border:none; font-size:22px; cursor:pointer; color: var(--text-secondary); line-height:1;">×</button>
       </div>
 
       <!-- FIXED-SIZE crop area — Cropper.js is constrained inside this box -->
@@ -1423,8 +1460,10 @@
       </div>
 
       <div style="padding: 14px 20px; display: flex; gap: 12px; justify-content: flex-end; background: var(--bg);">
-        <button onclick="closeModal('cropModal')" class="btn-secondary" style="width:auto; padding: 10px 20px;">Cancel</button>
-        <button id="applyCropBtn" onclick="applyCrop()" class="btn-primary" style="width:auto; padding: 10px 24px;">✂️ Apply Crop</button>
+        <button onclick="closeModal('cropModal')" class="btn-secondary"
+          style="width:auto; padding: 10px 20px;">Cancel</button>
+        <button id="applyCropBtn" onclick="applyCrop()" class="btn-primary" style="width:auto; padding: 10px 24px;">✂️
+          Apply Crop</button>
       </div>
     </div>
   </div>
