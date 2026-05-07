@@ -478,8 +478,8 @@ ul {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/images/hero-bg.jpg') center/cover;
-  opacity: .08;
+  background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent);
+  opacity: .5;
 }
 
 .hero-content {
@@ -1740,65 +1740,79 @@ ul {
 ============================================================ */
 .profile-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 20px;
-  padding: 16px 0 48px;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
+  padding: 32px 0 64px;
   align-items: start;
 }
 
 .profile-card {
   background: var(--bg-card);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure it fills container if needed */
 }
 
 .profile-card-cover {
-  height: 40px; /* Reduced from 60px */
+  height: 60px;
   background: linear-gradient(135deg, var(--primary), var(--tertiary));
+  position: relative;
 }
 
 .profile-card-body {
-  padding: 0 16px 16px;
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .profile-avatar-wrap {
-  margin-top: -36px; /* Half of avatar height to overlap cover */
-  margin-bottom: 8px;
+  margin-top: -40px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .profile-avatar, #profileAvatarDisplay {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-dark), var(--tertiary));
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--primary), var(--tertiary));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 48px;
+  font-weight: 800;
   color: white;
-  border: 3px solid var(--bg-card);
-  box-shadow: var(--shadow-sm);
+  border: 6px solid var(--bg-card);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
   object-fit: cover;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-avatar:hover {
+  transform: scale(1.08) rotate(2deg);
+  box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
 }
 
 .profile-info-header {
   text-align: center;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-light);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .profile-name {
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 900;
   color: var(--text-primary);
-  margin-top: 4px;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
 }
 
 .profile-joined {
@@ -1829,9 +1843,10 @@ ul {
 }
 
 .profile-joined {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-bottom: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 .profile-stats {
@@ -1859,15 +1874,32 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 16px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
 }
 
 .profile-info-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-info-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-info-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-all;
 }
 
 .profile-info-item span:first-child {
@@ -2541,6 +2573,63 @@ tr:hover td {
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, .2);
   letter-spacing: .3px;
+}
+
+/* SKELETON LOADING */
+.skeleton {
+  background: #e2e8f0;
+  background: linear-gradient(110deg, #eceff1 8%, #f5f7f9 18%, #eceff1 33%);
+  border-radius: 4px;
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+.skeleton-card {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+}
+
+.skeleton-body {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-title {
+  height: 18px;
+  width: 80%;
+  border-radius: 4px;
+}
+
+.skeleton-text {
+  height: 14px;
+  width: 60%;
+  border-radius: 4px;
+}
+
+.skeleton-price {
+  height: 24px;
+  width: 40%;
+  border-radius: 6px;
+  margin-top: auto;
 }
 
 /* EMPTY STATE */

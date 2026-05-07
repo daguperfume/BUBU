@@ -359,7 +359,10 @@ function navigate(page, data) {
   if (page === 'home') renderHome();
   if (page === 'search') renderSearchPage(data);
   if (page === 'detail' && data) renderDetailPage(data);
-  if (page === 'post') renderPostPage();
+  if (page === 'post') {
+    renderPostPage();
+    loadPostProgress();
+  }
   if (page === 'profile') renderProfilePage();
   if (page === 'seller') renderSellerPage();
 
@@ -516,7 +519,7 @@ function renderListingCard(listing) {
   return `
     <div class="listing-card" onclick="openListing(${safeId})">
       <div class="card-img-wrap">
-        <img class="card-img" src="${mainImage}" alt="${listing.title}" loading="lazy" onerror="this.src='/images/listing-phone.jpg'" />
+        <img class="card-img" src="${mainImage}" alt="${listing.title}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f1f5%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%22200%22 y=%22150%22 text-anchor=%22middle%22 fill=%22%239ca3af%22 font-size=%2240%22%3E📷%3C/text%3E%3C/svg%3E'" />
         <div class="card-badges">
           ${listing.featured ? '<span class="badge-featured">Featured</span>' : ''}
           <span class="badge-condition ${listing.condition === 'new' ? 'badge-new' : 'badge-used'}">${listing.condition === 'new' ? 'New' : 'Used'}</span>
@@ -611,6 +614,34 @@ function renderFilterPanel() {
   `;
   panel.innerHTML = html;
   renderHorizontalFilters();
+}
+
+function getSkeletons(count = 4) {
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    html += `
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-img"></div>
+        <div class="skeleton-body">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-price"></div>
+        </div>
+      </div>`;
+  }
+  return html;
+}
+
+async function renderFeaturedListings() {
+  const container = document.getElementById('featuredGrid');
+  if (!container) return;
+
+  // Show skeletons immediately
+  container.innerHTML = getSkeletons(4);
+
+  if (typeof sb !== 'undefined') {
+    // Logic to fetch and populate will go here
+  }
 }
 
 function renderHorizontalFilters() {
@@ -1563,17 +1594,182 @@ function goToStep(step) {
 let postImages = []; // Stores the preview URLs
 let postImageFiles = []; // Stores the actual File objects
 
+// --- FORM PERSISTENCE ---
+function saveAdProgress() {
+  const adData = {
+    title: document.getElementById('postTitle')?.value || '',
+    category: document.getElementById('postCategory')?.value || '',
+    subCategory: document.getElementById('postSubCategory')?.value || '',
+    condition: document.getElementById('postCondition')?.value || '',
+    price: document.getElementById('postPrice')?.value || '',
+    desc: document.getElementById('postDesc')?.value || '',
+    sellerName: document.getElementById('postSellerName')?.value || '',
+    phone: document.getElementById('postPhone')?.value || '',
+    telegram: document.getElementById('postTelegram')?.value || '',
+    negotiable: document.getElementById('postNegotiable')?.value || 'yes',
+    step: currentStep
+  };
+  localStorage.setItem('bubu_draft_ad', JSON.stringify(adData));
+}
+
+function loadAdProgress() {
+  const saved = localStorage.getItem('bubu_draft_ad');
+  if (!saved) return;
+  const adData = JSON.parse(saved);
+  
+  if (document.getElementById('postTitle')) document.getElementById('postTitle').value = adData.title;
+  if (document.getElementById('postCategory')) {
+    document.getElementById('postCategory').value = adData.category;
+    handleCategoryChange();
+  }
+  if (document.getElementById('postCondition')) document.getElementById('postCondition').value = adData.condition;
+  if (document.getElementById('postPrice')) document.getElementById('postPrice').value = adData.price;
+  if (document.getElementById('postDesc')) document.getElementById('postDesc').value = adData.desc;
+  if (document.getElementById('postSellerName')) document.getElementById('postSellerName').value = adData.sellerName;
+  if (document.getElementById('postPhone')) document.getElementById('postPhone').value = adData.phone;
+  if (document.getElementById('postTelegram')) document.getElementById('postTelegram').value = adData.telegram;
+  if (document.getElementById('postNegotiable')) document.getElementById('postNegotiable').value = adData.negotiable;
+
+  setTimeout(() => {
+    if (adData.subCategory && document.getElementById('postSubCategory')) {
+      document.getElementById('postSubCategory').value = adData.subCategory;
+    }
+  }, 100);
+}
+
+function clearAdProgress() {
+  localStorage.removeItem('bubu_draft_ad');
+}
+
+// Add event listeners for persistence
+function initFormPersistence() {
+  const inputs = ['postTitle', 'postCategory', 'postSubCategory', 'postCondition', 'postPrice', 'postDesc', 'postSellerName', 'postPhone', 'postTelegram', 'postNegotiable'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', saveAdProgress);
+  });
+}
+
+let cropper = null;
+let currentCropIndex = -1;
+
 function handlePhotoUpload(event) {
   const files = Array.from(event.target.files);
+  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
   files.forEach(file => {
+    if (file.size > MAX_SIZE) {
+      showToast(`File "${file.name}" is too large. Max 5MB.`, 'error');
+      return;
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      showToast(`File "${file.name}" is not a supported image type. Use JPG, PNG or WebP.`, 'error');
+      return;
+    }
     if (postImages.length >= 8) {
       showToast('Maximum 8 photos allowed', 'error');
       return;
     }
-    const previewUrl = URL.createObjectURL(file);
-    postImages.push({ src: previewUrl, isExisting: false, file: file });
-    renderPhotoPreview();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      postImages.push({ src: e.target.result, isExisting: false, file: file });
+      renderPhotoPreview();
+      savePostProgress();
+    };
+    reader.readAsDataURL(file);
   });
+}
+
+function openCropper(index) {
+  currentCropIndex = index;
+  const imgData = postImages[index];
+
+  // Step 1: Open the modal FIRST so it has real pixel dimensions
+  openModal('cropModal');
+
+  // Step 2: Wait for modal to be visible, THEN set up the image + Cropper
+  setTimeout(() => {
+    const cropImg = document.getElementById('imageToCrop');
+    if (!cropImg) return;
+
+    // Destroy any stale instance
+    if (cropper) { cropper.destroy(); cropper = null; }
+
+    function initCropper() {
+      if (typeof Cropper === 'undefined') {
+        showToast('Image editor not loaded. Please reload the page.', 'error');
+        return;
+      }
+      if (cropper) { cropper.destroy(); cropper = null; }
+      cropper = new Cropper(cropImg, {
+        aspectRatio: 1,
+        viewMode: 2,
+        autoCropArea: 0.85,
+        dragMode: 'move',
+        responsive: true,
+        checkCrossOrigin: false,
+        background: false,
+      });
+    }
+
+    // Reset src so onload always fires reliably
+    cropImg.onload = initCropper;
+    cropImg.onerror = () => showToast('Failed to load image for cropping.', 'error');
+    cropImg.src = '';
+    cropImg.src = imgData.src;
+
+    // Fallback for already-cached images where onload may not fire
+    if (cropImg.complete && cropImg.naturalWidth > 0) {
+      initCropper();
+    }
+  }, 150);
+}
+
+function applyCrop() {
+  const btn = document.getElementById('applyCropBtn');
+
+  if (!cropper) {
+    showToast('Cropper not ready. Please reopen the crop tool.', 'error');
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Applying...'; }
+
+  try {
+    const canvas = cropper.getCroppedCanvas({ width: 800, height: 800, imageSmoothingQuality: 'high' });
+
+    if (!canvas) {
+      showToast('Crop failed — try selecting an area first.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '✂️ Apply Crop'; }
+      return;
+    }
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        showToast('Image processing failed. Try again.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '✂️ Apply Crop'; }
+        return;
+      }
+      const croppedFile = new File([blob], `cropped_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      postImages[currentCropIndex].src = canvas.toDataURL('image/jpeg', 0.92);
+      postImages[currentCropIndex].file = croppedFile;
+      postImages[currentCropIndex].isExisting = false;
+
+      renderPhotoPreview();
+      cropper.destroy();
+      cropper = null;
+      closeModal('cropModal');
+      savePostProgress();
+      showToast('✅ Photo cropped!', 'success');
+      if (btn) { btn.disabled = false; btn.textContent = '✂️ Apply Crop'; }
+    }, 'image/jpeg', 0.92);
+
+  } catch (e) {
+    console.error('Crop error:', e);
+    showToast('Crop error: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '✂️ Apply Crop'; }
+  }
 }
 
 async function uploadImages(files) {
@@ -1591,8 +1787,9 @@ function renderPhotoPreview() {
   const grid = document.getElementById('photoPreviewGrid');
   grid.innerHTML = postImages.map((img, i) => `
     <div class="preview-item">
-      <img src="${img.src}" alt="" />
+      <img src="${img.src}" alt="" onclick="openCropper(${i})" title="Click to crop" />
       <div class="preview-remove" onclick="removePhoto(${i})">×</div>
+      <div style="position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.5); color:white; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer;" onclick="openCropper(${i})">Edit</div>
     </div>
   `).join('');
 }
@@ -1643,7 +1840,14 @@ async function submitListing(event) {
 
   try {
     const existingPhotos = postImages.filter(img => img.isExisting).map(img => img.src);
-    const newFiles = postImages.filter(img => !img.isExisting).map(img => img.file);
+    const newImages = postImages.filter(img => !img.isExisting);
+
+    // Convert any data-URL images that lost their File reference (e.g. restored from draft)
+    const newFiles = await Promise.all(newImages.map(async (img, i) => {
+      if (img.file instanceof File) return img.file;
+      // Convert data URL → File
+      return dataURLtoFile(img.src, `photo_${Date.now()}_${i}.jpg`);
+    }));
 
     let finalPhotoUrls = [...existingPhotos];
     if (newFiles.length > 0) {
@@ -1686,10 +1890,10 @@ async function submitListing(event) {
 
     // Cleanup
     postImages = [];
-    postImageFiles = [];
     document.getElementById('postForm').reset();
     const previewGrid = document.getElementById('photoPreviewGrid');
     if (previewGrid) previewGrid.innerHTML = '';
+    localStorage.removeItem('bubu_post_draft'); // CLEAR PERSISTENCE AFTER SUCCESS
 
     setTimeout(() => {
       submitBtn.disabled = false;
@@ -1699,14 +1903,87 @@ async function submitListing(event) {
 
   } catch (err) {
     console.error("Submission Error:", err);
-    showToast('Error posting ad. Using local fallback.', 'warning');
-    saveLocalListing({ title, price: Number(price), category: cat, condition: cond, description, seller_name: name, seller_phone: phone, photos: [] });
-    navigate('home');
-  } finally {
+    showToast(err.message || "Failed to post ad. Please try again.", "error");
     submitBtn.disabled = false;
     submitBtn.innerHTML = originalText;
   }
 }
+
+/* ============================================================
+   FORM PERSISTENCE
+============================================================ */
+function savePostProgress() {
+  const draft = {
+    title: document.getElementById('postTitle')?.value,
+    category: document.getElementById('postCategory')?.value,
+    subCategory: document.getElementById('postSubCategory')?.value,
+    condition: document.getElementById('postCondition')?.value,
+    price: document.getElementById('postPrice')?.value,
+    desc: document.getElementById('postDesc')?.value,
+    sellerName: document.getElementById('postSellerName')?.value,
+    phone: document.getElementById('postPhone')?.value,
+    telegram: document.getElementById('postTelegram')?.value,
+    images: postImages.map(img => ({ src: img.src, isExisting: img.isExisting })) 
+  };
+  localStorage.setItem('bubu_post_draft', JSON.stringify(draft));
+}
+
+function loadPostProgress() {
+  const saved = localStorage.getItem('bubu_post_draft');
+  if (!saved) return;
+  
+  try {
+    const draft = JSON.parse(saved);
+    if (document.getElementById('postTitle')) document.getElementById('postTitle').value = draft.title || '';
+    if (document.getElementById('postCategory')) {
+        document.getElementById('postCategory').value = draft.category || '';
+        handleCategoryChange();
+    }
+    setTimeout(() => {
+        if (document.getElementById('postSubCategory')) document.getElementById('postSubCategory').value = draft.subCategory || '';
+        renderSpecFields();
+    }, 200);
+    
+    if (document.getElementById('postCondition')) document.getElementById('postCondition').value = draft.condition || '';
+    if (document.getElementById('postPrice')) document.getElementById('postPrice').value = draft.price || '';
+    if (document.getElementById('postDesc')) document.getElementById('postDesc').value = draft.desc || '';
+    if (document.getElementById('postSellerName')) document.getElementById('postSellerName').value = draft.sellerName || '';
+    if (document.getElementById('postPhone')) document.getElementById('postPhone').value = draft.phone || '';
+    if (document.getElementById('postTelegram')) document.getElementById('postTelegram').value = draft.telegram || '';
+    
+    if (draft.images && draft.images.length > 0) {
+      postImages = draft.images.map(img => ({ 
+        src: img.src, 
+        isExisting: img.isExisting,
+        file: null 
+      }));
+      renderPhotoPreview();
+    }
+  } catch (e) { console.error("Error loading draft:", e); }
+}
+
+function clearAdProgress() {
+    localStorage.removeItem('bubu_post_draft');
+}
+
+/* Converts a base64 data URL to a File object for Supabase upload */
+function dataURLtoFile(dataUrl, filename) {
+  if (!dataUrl || !dataUrl.startsWith('data:')) {
+    throw new Error('Invalid data URL provided for conversion.');
+  }
+  const arr = dataUrl.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) u8arr[n] = bstr.charCodeAt(n);
+  return new File([u8arr], filename, { type: mime });
+}
+
+// Auto-save listeners
+document.addEventListener('input', (e) => {
+    if (e.target.closest('#postForm')) savePostProgress();
+});
 
 async function editListing(id) {
   const listing = DB.listings.find(l => String(l.id) === String(id));
@@ -1847,30 +2124,36 @@ function updateProfileUI(user) {
   if (user.is_verified || user.verification_status === 'verified') {
     if (btnContainer) {
       btnContainer.innerHTML = `
-        <div class="verification-badge">
-          <span style="font-size: 14px;"></span> Verified Seller
+        <div style="display: flex; justify-content: center;">
+          <div class="verification-badge" style="background:#dcfce7; color:#166534; border:1px solid #bbf7d0; padding:6px 16px; font-size:12px; box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1);">
+            <span style="font-size: 14px; margin-right: 4px;">✓</span> Verified Seller
+          </div>
         </div>`;
     }
   } else if (user.verification_status === 'pending') {
     if (btnContainer) {
       btnContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 6px;">
-          <div style="background:#fef9c3; padding:4px 12px; border-radius:20px; color:#854d0e; border:1px solid #fef08a; font-size:11px; font-weight:700;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 6px;">
+          <div style="background:#fef9c3; padding:8px 20px; border-radius:20px; color:#854d0e; border:1px solid #fef08a; font-size:12px; font-weight:800; box-shadow: 0 2px 8px rgba(133, 77, 14, 0.1);">
             Processing...
           </div>
           <button onclick="cancelVerification()" 
-            style="background:none; color:#ef4444; font-size:10px; font-weight:600; border:none; cursor:pointer; text-decoration:underline;">
-            Cancel
+            style="background:none; color:#ef4444; font-size:11px; font-weight:700; border:none; cursor:pointer; text-decoration:none; opacity:0.8; transition: opacity 0.2s;"
+            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+            Cancel Request
           </button>
         </div>`;
     }
   } else {
     if (btnContainer) {
       btnContainer.innerHTML = `
-        <button onclick="openModal('verificationModal')" 
-          style="padding: 6px 14px; background: #6366f1; color: white; border-radius: 20px; font-weight: 700; font-size: 11px; cursor: pointer; border: none; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2); margin-top: 8px;">
-          Get Verified
-        </button>`;
+        <div style="display: flex; justify-content: center;">
+          <button onclick="openModal('verificationModal')" 
+            style="padding: 10px 24px; background: var(--primary); color: white; border-radius: 20px; font-weight: 800; font-size: 12px; cursor: pointer; border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); margin-top: 8px; transition: transform 0.2s;"
+            onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+            Get Verified
+          </button>
+        </div>`;
     }
   }
 
@@ -1976,11 +2259,8 @@ async function renderUserListings(tab) {
   let listings = [];
 
   if (tab === 'active') {
-    // Show loading state while fetching
-    grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-secondary);">
-      <div style="font-size:28px; margin-bottom:12px;"></div>
-      <p style="font-weight:600;">Loading your ads...</p>
-    </div>`;
+    // Show skeletons immediately
+    grid.innerHTML = getSkeletons(3);
 
     // Always try to fetch fresh from Supabase first
     if (typeof sb !== 'undefined' && user) {
@@ -3216,7 +3496,7 @@ function selectSuggestion(id) {
   openListing(id);
 }
 
-function performSearch(context) {
+async function performSearch(context) {
   const inputId = context === 'hero' ? 'heroSearch' : 'navSearch';
   const query = document.getElementById(inputId)?.value || '';
 
@@ -3225,6 +3505,38 @@ function performSearch(context) {
 
   state.searchQuery = query;
   if (query.trim()) saveSearchHistory(query.trim());
+  
+  // Robust Full-Text Search Integration
+  if (typeof sb !== 'undefined' && query.trim().length > 1) {
+    showToast("Searching...", "info");
+    try {
+      const { data, error } = await sb
+        .from('ads')
+        .select('*')
+        .or(`title.ilike.%${query}%,description.ilike.%${query}%,seller_name.ilike.%${query}%`)
+        .order('created_at', { ascending: false });
+        
+      if (!error && data) {
+        // Sync local DB with search results to ensure UI renders properly
+        const searchResults = data.map(l => ({
+          id: String(l.id), title: l.title, price: l.price,
+          category: l.category, condition: l.condition,
+          description: l.description, seller: l.seller_name,
+          phone: l.seller_phone, telegram: l.seller_telegram,
+          photos: l.photos, specs: l.specs || {},
+          featured: l.featured, sold: l.sold,
+          time: new Date(l.created_at), views: l.views,
+          user_id: l.user_id
+        }));
+        
+        navigate('search', { query: query, results: searchResults });
+        return;
+      }
+    } catch (e) {
+      console.error("Search fetch failed:", e);
+    }
+  }
+
   navigate('search', { query: query });
 }
 

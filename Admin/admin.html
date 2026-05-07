@@ -286,11 +286,17 @@
                 <header class="admin-header">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <h1>Listing Management</h1>
-                        <div id="listingFilterInfo"
-                            style="display:none; align-items:center; gap:12px; background:#e0e7ff; padding:8px 16px; border-radius:12px;">
-                            <span style="font-size:13px; color:#4338ca; font-weight:700;">Filtered by User</span>
-                            <button class="btn-action" style="background:#4338ca; color:white; font-size:11px;"
-                                onclick="clearListingFilter()">Clear & Show All</button>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <button id="bulkDeleteBtn" class="btn-bulk-delete" onclick="deleteSelectedAds()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                                Delete Selected (<span id="selectedAdsCount">0</span>)
+                            </button>
+                            <div id="listingFilterInfo"
+                                style="display:none; align-items:center; gap:12px; background:#e0e7ff; padding:8px 16px; border-radius:12px;">
+                                <span style="font-size:13px; color:#4338ca; font-weight:700;">Filtered by User</span>
+                                <button class="btn-action" style="background:#4338ca; color:white; font-size:11px;"
+                                    onclick="clearListingFilter()">Clear & Show All</button>
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -317,6 +323,9 @@
                     <table>
                         <thead>
                             <tr>
+                                <th style="width: 40px; text-align: center; padding-left: 16px;">
+                                    <input type="checkbox" id="selectAllAds" class="admin-checkbox" onchange="toggleSelectAllAds(this.checked)">
+                                </th>
                                 <th>Ad Details</th>
                                 <th>Seller</th>
                                 <th>Price</th>

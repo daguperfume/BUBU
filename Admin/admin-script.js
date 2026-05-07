@@ -22,7 +22,8 @@ const adminState = {
     pendingBanUser: null,
     currentAuditTab: 'all',
     auditTimeFilter: 'all',
-    selectedLogs: new Set()
+    selectedLogs: new Set(),
+    selectedAds: new Set()
 };
 
 const SPEC_FIELDS_CONFIG = {
@@ -99,6 +100,23 @@ async function initAdmin() {
     console.log("Admin Initializing...");
     await refreshData();
     setupNavigation();
+    setupStickyHeaders();
+}
+
+function setupStickyHeaders() {
+    const main = document.querySelector('.admin-main');
+    if (!main) return;
+    
+    main.addEventListener('scroll', () => {
+        const headers = document.querySelectorAll('.admin-header');
+        headers.forEach(h => {
+            if (h.getBoundingClientRect().top <= 0) {
+                h.classList.add('stuck');
+            } else {
+                h.classList.remove('stuck');
+            }
+        });
+    });
 }
 
 async function refreshData() {
@@ -361,12 +379,17 @@ function renderListings(filteredList = null) {
     }
 
     if (ads.length === 0) {
-        table.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#94a3b8">No listings found in this category.</td></tr>';
+        table.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#94a3b8">No listings found in this category.</td></tr>';
         return;
     }
 
-    table.innerHTML = ads.map(ad => `
-        <tr>
+    table.innerHTML = ads.map(ad => {
+        const isChecked = adminState.selectedAds.has(String(ad.id));
+        return `
+        <tr class="${isChecked ? 'row-selected' : ''}">
+            <td style="text-align: center; padding-left: 16px;">
+                <input type="checkbox" class="ad-check admin-checkbox" value="${ad.id}" ${isChecked ? 'checked' : ''} onchange="toggleAdSelection('${ad.id}', this.checked)">
+            </td>
             <td>
                 <div style="display:flex; align-items:center; gap:12px">
                     <img src="${Array.isArray(ad.photos) ? ad.photos[0] : ad.photos}" 
@@ -397,7 +420,69 @@ function renderListings(filteredList = null) {
                 <button class="btn-action btn-delete" onclick="deleteAd('${ad.id}')">Delete</button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
+
+    updateBulkAdUI();
+}
+
+function toggleAdSelection(id, checked) {
+    if (checked) adminState.selectedAds.add(String(id));
+    else adminState.selectedAds.delete(String(id));
+    updateBulkAdUI();
+}
+
+function toggleSelectAllAds(checked) {
+    const checkboxes = document.querySelectorAll('.ad-check');
+    checkboxes.forEach(cb => {
+        cb.checked = checked;
+        if (checked) adminState.selectedAds.add(String(cb.value));
+        else adminState.selectedAds.delete(String(cb.value));
+    });
+    updateBulkAdUI();
+}
+
+function updateBulkAdUI() {
+    const count = adminState.selectedAds.size;
+    const btn = document.getElementById('bulkDeleteBtn');
+    const countSpan = document.getElementById('selectedAdsCount');
+    const selectAll = document.getElementById('selectAllAds');
+
+    if (btn) {
+        if (count > 0) btn.classList.add('show');
+        else btn.classList.remove('show');
+    }
+    if (countSpan) countSpan.textContent = count;
+    
+    // Update select-all checkbox state
+    if (selectAll) {
+        const total = document.querySelectorAll('.ad-check').length;
+        selectAll.checked = total > 0 && count === total;
+        selectAll.indeterminate = count > 0 && count < total;
+    }
+}
+
+async function deleteSelectedAds() {
+    const ids = Array.from(adminState.selectedAds);
+    if (ids.length === 0) return;
+
+    if (!confirm(`Are you sure you want to PERMANENTLY delete ${ids.length} selected listings?`)) return;
+
+    const btn = document.getElementById('bulkDeleteBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Deleting...'; }
+
+    try {
+        const { error } = await sb.from('ads').delete().in('id', ids);
+        if (error) throw error;
+
+        logAudit('Bulk Delete Listings', `Deleted ${ids.length} listings in bulk (IDs: ${ids.join(', ')})`);
+        showToast(`${ids.length} ads deleted successfully.`);
+        adminState.selectedAds.clear();
+        await refreshData();
+    } catch (err) {
+        alert("Bulk delete error: " + err.message);
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = `Delete Selected (${adminState.selectedAds.size})`; }
+    }
 }
 
 function renderAuditLogs() {
@@ -637,15 +722,7 @@ function filterUsers() {
     renderUsers(filtered);
 }
 
-function viewUserProfile(userId) {
-    const user = adminState.users.find(u => String(u.id) === String(userId));
-    if (!user) return;
-    
-    const status = user.is_banned ? "🔴 BANNED" : "🟢 ACTIVE";
-    const reason = user.ban_reason ? `\n\nBAN REASON:\n"${user.ban_reason}"` : "";
-    
-    alert(`[ USER INTERNAL PROFILE ]\n\nID: ${user.id}\nName: ${user.name || 'Unknown'}\nEmail: ${user.email}\nPhone: ${user.phone || 'N/A'}\nStatus: ${status}${reason}\n\nRegistered: ${new Date(user.created_at).toLocaleString()}`);
-}
+
 
 function viewUserAds(userId) {
     const userAds = adminState.ads.filter(ad => String(ad.user_id) === String(userId));
@@ -1003,13 +1080,13 @@ function renderVerifications() {
         else if (isVerified) statusBadge = '<span class="admin-badge" style="background:#dcfce7; color:#166534">Verified</span>';
         else statusBadge = '<span class="admin-badge" style="background:#fef9c3; color:#854d0e">Pending</span>';
 
-        let actionButtons = '';
+        let actionButtons = `<button class="btn-action" style="background:#f1f5f9; color:#475569; border:none" onclick="viewUserProfile('${u.id}')">Profile</button>`;
         if (isCanceled) {
-            actionButtons = `<button class="btn-action" style="background:#e2e8f0; color:#475569" onclick="clearVerificationStatus('${u.id}')">Dismiss</button>`;
+            actionButtons += `<button class="btn-action" style="background:#e2e8f0; color:#475569" onclick="clearVerificationStatus('${u.id}')">Dismiss</button>`;
         } else if (isVerified) {
-            actionButtons = `<button class="btn-action" style="background:#fee2e2; color:#b91c1c" onclick="handleVerification('${u.id}', false)">Revoke</button>`;
+            actionButtons += `<button class="btn-action" style="background:#fee2e2; color:#b91c1c" onclick="handleVerification('${u.id}', false)">Revoke</button>`;
         } else {
-            actionButtons = `
+            actionButtons += `
                 <button class="btn-action" style="background:#dcfce7; color:#166534" onclick="handleVerification('${u.id}', true)">Approve</button>
                 <button class="btn-action" style="background:#fee2e2; color:#b91c1c" onclick="handleVerification('${u.id}', false)">Reject</button>
             `;
